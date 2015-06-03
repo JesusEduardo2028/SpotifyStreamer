@@ -1,6 +1,7 @@
 <resources>
-    <string name="app_name">Spotify Streamer</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name" translatable="false">Spotify Streamer</string>
+
     <string name="action_settings">Settings</string>
+
     <string name="search_artists_edittext_hint">Search artists here . . .</string>
 </resources>

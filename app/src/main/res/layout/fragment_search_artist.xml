@@ -8,6 +8,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".SearchArtistActivityFragment">
 
+    <!--Search Artist Field-->
     <EditText
         android:id="@+id/searchArtist"
         android:layout_width="fill_parent"
