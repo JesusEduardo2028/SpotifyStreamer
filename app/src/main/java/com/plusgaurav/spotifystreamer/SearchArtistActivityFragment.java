@@ -1,6 +1,7 @@
 package com.plusgaurav.spotifystreamer;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -32,7 +34,7 @@ import kaaes.spotify.webapi.android.models.Image;
 
 public class SearchArtistActivityFragment extends Fragment {
 
-    private EditText searchArtist;
+    private EditText searchArtistEditText;
     private static myArtistAdapter artistAdapter;
     private static List<HashMap<String, String>> artistList;
 
@@ -45,19 +47,19 @@ public class SearchArtistActivityFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_search_artist, container, false);
 
         // Listener for when the user is done typing the artist name in the edittext feild
-        searchArtist = (EditText) rootView.findViewById(R.id.searchArtist);
-        searchArtist.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        searchArtistEditText = (EditText) rootView.findViewById(R.id.searchArtistEditText);
+        searchArtistEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
 
                     // hide virtual keyboard
                     InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(searchArtist.getWindowToken(), 0);
+                    imm.hideSoftInputFromWindow(searchArtistEditText.getWindowToken(), 0);
 
                     // search for artists
                     FetchArtistTask task = new FetchArtistTask();
-                    task.execute(searchArtist.getText().toString());
+                    task.execute(searchArtistEditText.getText().toString());
 
                     return true;
                 }
@@ -70,17 +72,29 @@ public class SearchArtistActivityFragment extends Fragment {
         artistList = new ArrayList<>();
 
         // Keys used in Hashmap
-        String[] from = {"artistName"};
+        String[] from = {"artistName", "artistImage"};
 
         // Ids of views in listview_layout
-        int[] to = {R.id.artistName};
+        int[] to = {R.id.artistName, R.id.artistImage};
 
-        // Instantiating an adapter to store each items
-        // R.layout.listview_layout defines the layout of each item
+        // initialize adapter
         artistAdapter = new myArtistAdapter(getActivity(), artistList, R.layout.artistlistview_layout, from, to);
-        ListView artistView = (ListView) rootView.findViewById(R.id.artistListView);
 
+        // bind listview
+        ListView artistView = (ListView) rootView.findViewById(R.id.artistListView);
         artistView.setAdapter(artistAdapter);
+
+        // open top 10 track view
+        artistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String artistId = artistList.get(position).get("artistId");
+                String artistName = artistList.get(position).get("artistName");
+                Intent intent = new Intent(getActivity(), TopTenTracksActivity.class)
+                        .putExtra(Intent.EXTRA_TEXT, new String[]{artistId, artistName});
+                startActivity(intent);
+            }
+        });
 
         return rootView;
     }
@@ -102,10 +116,14 @@ public class SearchArtistActivityFragment extends Fragment {
             api.setAccessToken(SearchArtistActivity.getAccessToken());
             SpotifyService spotify = api.getService();
 
+            // set options
             Map<String, Object> options = new HashMap<>();
             options.put("limit", 20);
+
+            // search artist
             ArtistsPager artistsPager = spotify.searchArtists(artistName[0], options);
 
+            // update data source
             artistList.clear();
             int i = 0;
             for (Artist artist : artistsPager.artists.items) {
@@ -120,6 +138,8 @@ public class SearchArtistActivityFragment extends Fragment {
                 artistList.add(artistMap);
                 i++;
             }
+
+            // return true if data source refreshed
             return !artistList.isEmpty();
         }
 
@@ -129,16 +149,17 @@ public class SearchArtistActivityFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(Boolean bool) {
-            if (bool) {
+        protected void onPostExecute(Boolean isDataSourceRefereshed) {
+            if (isDataSourceRefereshed) {
                 artistAdapter.notifyDataSetChanged();
             } else {
-                Toast.makeText(getActivity(), "No results found for \"" + searchArtist.getText() + "\"", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "No results found for \"" + searchArtistEditText.getText() + "\"", Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    // got help from here "http://stackoverflow.com/questions/8166497/custom-adapter-for-list-view"
+    // create custom adapter
+    // got help from "http://stackoverflow.com/questions/8166497/custom-adapter-for-list-view"
     public class myArtistAdapter extends SimpleAdapter {
 
         public myArtistAdapter(Context context, List<HashMap<String, String>> data, int resource, String[] from, int[] to) {
@@ -146,19 +167,20 @@ public class SearchArtistActivityFragment extends Fragment {
         }
 
         public View getView(int position, View convertView, ViewGroup parent) {
-            // here you let SimpleAdapter built the view normally.
-            View v = super.getView(position, convertView, parent);
 
-            // Then we get reference for Picasso
-            ImageView img = (ImageView) v.findViewById(R.id.artistImage);
+            View view = super.getView(position, convertView, parent);
 
-            // get the url from the data you passed to the `Map`
+            // get reference to imageview
+            ImageView artistImageView = (ImageView) view.findViewById(R.id.artistImage);
+
+            // get the url from the data source
             String url = (String) ((Map) getItem(position)).get("artistImage");
-            if (url != null) {
-                Picasso.with(v.getContext()).load(url).placeholder(R.drawable.ic_play_circle_filled_black_36dp).error(R.drawable.ic_play_circle_filled_black_36dp).into(img);
-            }
-            // return the view
-            return v;
+
+            // load it to the imageview
+            Picasso.with(view.getContext()).load(url).placeholder(R.drawable.ic_play_circle_filled_black_36dp).error(R.drawable.ic_play_circle_filled_black_36dp).into(artistImageView);
+
+
+            return view;
         }
     }
 }

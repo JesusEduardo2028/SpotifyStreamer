@@ -10,7 +10,7 @@
 
     <!--Search Artist Field-->
     <EditText
-        android:id="@+id/searchArtist"
+        android:id="@+id/searchArtistEditText"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:hint="@string/search_artists_edittext_hint"
@@ -25,6 +25,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="20dp"
-        android:layout_below="@+id/searchArtist" />
+        android:layout_below="@+id/searchArtistEditText" />
 
 </RelativeLayout>

@@ -12,7 +12,8 @@
         android:minHeight="?android:attr/listPreferredItemHeight"
         android:paddingBottom="10dp"
         android:paddingRight="20dp"
-        android:paddingTop="10dp" />
+        android:paddingTop="10dp"
+        android:src="@drawable/ic_play_circle_filled_black_36dp" />
 
     <TextView
         android:id="@+id/artistName"
