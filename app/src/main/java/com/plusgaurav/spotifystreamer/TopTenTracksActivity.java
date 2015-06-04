@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 public class TopTenTracksActivity extends AppCompatActivity {
 
@@ -15,7 +14,8 @@ public class TopTenTracksActivity extends AppCompatActivity {
         setContentView(R.layout.activity_top_ten_tracks);
         Intent intent = getIntent();
         String[] artistInfo = intent.getStringArrayExtra(Intent.EXTRA_TEXT);
-        Toast.makeText(this, artistInfo[0] + artistInfo[1], Toast.LENGTH_LONG).show();
+        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        actionBar.setSubtitle(artistInfo[1]);
     }
 
 

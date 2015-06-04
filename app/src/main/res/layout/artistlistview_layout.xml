@@ -5,7 +5,7 @@
     android:orientation="horizontal">
 
     <ImageView
-        android:id="@+id/trackImage"
+        android:id="@+id/artistImage"
         android:layout_width="75dp"
         android:layout_height="75dp"
         android:gravity="center_vertical"
@@ -16,7 +16,7 @@
         android:src="@drawable/ic_play_circle_filled_black_36dp" />
 
     <TextView
-        android:id="@+id/trackName"
+        android:id="@+id/artistName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"

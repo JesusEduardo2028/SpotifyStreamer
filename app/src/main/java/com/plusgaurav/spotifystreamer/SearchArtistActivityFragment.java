@@ -68,7 +68,7 @@ public class SearchArtistActivityFragment extends Fragment {
         });
 
 
-        // artist list view
+        // artist listview part
         artistList = new ArrayList<>();
 
         // Keys used in Hashmap
@@ -125,7 +125,6 @@ public class SearchArtistActivityFragment extends Fragment {
 
             // update data source
             artistList.clear();
-            int i = 0;
             for (Artist artist : artistsPager.artists.items) {
                 HashMap<String, String> artistMap = new HashMap<>();
                 artistMap.put("artistName", artist.name);
@@ -136,7 +135,6 @@ public class SearchArtistActivityFragment extends Fragment {
                     artistMap.put("artistImage", image.url);
                 }
                 artistList.add(artistMap);
-                i++;
             }
 
             // return true if data source refreshed
