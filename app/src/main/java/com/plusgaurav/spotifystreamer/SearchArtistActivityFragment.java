@@ -129,10 +129,11 @@ public class SearchArtistActivityFragment extends Fragment {
                 HashMap<String, String> artistMap = new HashMap<>();
                 artistMap.put("artistName", artist.name);
                 artistMap.put("artistId", artist.id);
-                // TODO put logic to decide image size
                 for (Image image : artist.images) {
-                    //if((image.height)*(image.width)==200)
-                    artistMap.put("artistImage", image.url);
+                    if (image.width >= 200 && image.width <= 300) {
+                        artistMap.put("artistImage", image.url);
+                        break;
+                    }
                 }
                 artistList.add(artistMap);
             }

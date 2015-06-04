@@ -14,6 +14,7 @@ public class TopTenTracksActivity extends AppCompatActivity {
         setContentView(R.layout.activity_top_ten_tracks);
         Intent intent = getIntent();
         String[] artistInfo = intent.getStringArrayExtra(Intent.EXTRA_TEXT);
+        // set subtitle in the actionbar
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         actionBar.setSubtitle(artistInfo[1]);
     }

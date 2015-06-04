@@ -43,7 +43,7 @@ public class TopTenTracksActivityFragment extends Fragment {
 
         // Keys used in Hashmap
         // TODO change keys
-        String[] from = {"trackName", "trackAlbum", "trackImage"};
+        String[] from = {"trackName", "trackAlbum", "trackImageSmall"};
 
         // Ids of views in listview_layout
         int[] to = {R.id.trackName, R.id.trackAlbum, R.id.trackImage};
@@ -93,10 +93,13 @@ public class TopTenTracksActivityFragment extends Fragment {
                 HashMap<String, String> trackMap = new HashMap<>();
                 trackMap.put("trackName", track.name);
                 trackMap.put("trackAlbum", track.album.name);
-                // TODO put logic to decide image size
                 for (Image image : track.album.images) {
-                    //if((image.height)*(image.width)==200)
-                    trackMap.put("trackImage", image.url);
+                    if (image.width >= 200 && image.width <= 300) {
+                        trackMap.put("trackImageSmall", image.url);
+                    }
+                    if (image.width >= 640) {
+                        trackMap.put("trackImageLarge", image.url);
+                    }
                 }
                 topTenTrackList.add(trackMap);
             }
@@ -137,7 +140,7 @@ public class TopTenTracksActivityFragment extends Fragment {
             ImageView artistImageView = (ImageView) view.findViewById(R.id.trackImage);
 
             // get the url from the data source
-            String url = (String) ((Map) getItem(position)).get("trackImage");
+            String url = (String) ((Map) getItem(position)).get("trackImageSmall");
 
             // load it to the imageview
             if (url != null) {
