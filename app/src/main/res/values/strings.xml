@@ -6,4 +6,6 @@
     <string name="search_artists_edittext_hint">Search artists here . . .</string>
     <string name="title_activity_top_ten_tracks">Top 10 Tracks</string>
     <string name="hello_world">Hello world!</string>
+    <string name="logout">Log out</string>
+    <string name="login">Log in</string>
 </resources>

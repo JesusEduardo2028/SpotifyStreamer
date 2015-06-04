@@ -28,9 +28,10 @@ import kaaes.spotify.webapi.android.models.Tracks;
 public class TopTenTracksActivityFragment extends Fragment {
 
     private static myTopTenTrackAdapter topTenTrackAdapter;
-    private static List<HashMap<String, String>> topTenTrackList;
+    private static ArrayList<HashMap<String, String>> topTenTrackList;
 
     public TopTenTracksActivityFragment() {
+        //ReadFromParcel();
     }
 
     @Override
@@ -85,6 +86,7 @@ public class TopTenTracksActivityFragment extends Fragment {
             options.put("country", "US");
 
             // search artist
+            // TODO implement callback
             Tracks topTracks = spotify.getArtistTopTrack(artistId[0], options);
 
             // update data source
@@ -150,4 +152,31 @@ public class TopTenTracksActivityFragment extends Fragment {
             return view;
         }
     }
+
+
+    // TODO implement parcelable
+/*    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeList(topTenTrackList);
+    }
+
+    public static final Parcelable.Creator<TopTenTracksActivityFragment> CREATOR =
+            new Parcelable.Creator<TopTenTracksActivityFragment>() {
+                public TopTenTracksActivityFragment createFromParcel(Parcel in) {
+                    return new TopTenTracksActivityFragment.topTenTrackList(in);
+                }
+
+                public TopTenTracksActivityFragment[] newArray(int size) {
+                    return new TopTenTracksActivityFragment[size];
+                }
+            };
+
+    private void ReadFromParcel(Parcel in) {
+        topTenTrackList = in.createTypedArrayList(TopTenTracksActivityFragment.CREATOR);
+    }*/
 }

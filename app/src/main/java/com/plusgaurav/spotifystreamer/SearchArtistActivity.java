@@ -17,7 +17,7 @@ public class SearchArtistActivity extends AppCompatActivity {
     private static final String REDIRECT_URI = "spotifystreamer://callback";
     private static String accessToken;
     private static final int REQUEST_CODE = 1337;
-    
+
     public static String getAccessToken() {
         return accessToken;
     }
@@ -30,12 +30,6 @@ public class SearchArtistActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_artist);
-        AuthenticationRequest.Builder builder =
-                new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
-        builder.setScopes(new String[]{"user-read-private", "streaming"});
-        AuthenticationRequest request = builder.build();
-
-        AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
     }
 
     @Override
@@ -82,7 +76,20 @@ public class SearchArtistActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            // TODO make settings interface
             return true;
+        }
+        if (id == R.id.action_logout) {
+            AuthenticationClient.logout(getApplicationContext());
+            Toast.makeText(this, "Logged out!", Toast.LENGTH_LONG).show();
+        }
+        if (id == R.id.action_login) {
+            AuthenticationRequest.Builder builder =
+                    new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
+            builder.setScopes(new String[]{"user-read-private", "streaming"});
+            AuthenticationRequest request = builder.build();
+
+            AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
         }
 
         return super.onOptionsItemSelected(item);

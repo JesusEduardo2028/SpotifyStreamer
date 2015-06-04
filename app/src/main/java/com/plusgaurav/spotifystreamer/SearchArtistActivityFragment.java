@@ -58,6 +58,7 @@ public class SearchArtistActivityFragment extends Fragment {
                     imm.hideSoftInputFromWindow(searchArtistEditText.getWindowToken(), 0);
 
                     // search for artists
+                    // TODO implement callback
                     FetchArtistTask task = new FetchArtistTask();
                     task.execute(searchArtistEditText.getText().toString());
 
