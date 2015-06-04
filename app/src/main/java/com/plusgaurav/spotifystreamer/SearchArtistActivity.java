@@ -17,8 +17,7 @@ public class SearchArtistActivity extends AppCompatActivity {
     private static final String REDIRECT_URI = "spotifystreamer://callback";
     private static String accessToken;
     private static final int REQUEST_CODE = 1337;
-
-
+    
     public static String getAccessToken() {
         return accessToken;
     }
@@ -26,10 +25,6 @@ public class SearchArtistActivity extends AppCompatActivity {
     private static void setAccessToken(String accessToken) {
         SearchArtistActivity.accessToken = accessToken;
     }
-
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +55,7 @@ public class SearchArtistActivity extends AppCompatActivity {
 
                 // Auth flow returned an error
                 case ERROR:
+                    Toast.makeText(SearchArtistActivity.this, "Could not log in, please restart app!", Toast.LENGTH_SHORT).show();
                     // Handle error response
                     break;
 
