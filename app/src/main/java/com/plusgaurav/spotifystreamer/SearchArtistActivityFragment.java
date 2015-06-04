@@ -122,6 +122,10 @@ public class SearchArtistActivityFragment extends Fragment {
             options.put("limit", 20);
 
             // search artist
+            if (artistName[0].equals("")) {
+                return false;
+            }
+
             ArtistsPager artistsPager = spotify.searchArtists(artistName[0], options);
 
             // update data source

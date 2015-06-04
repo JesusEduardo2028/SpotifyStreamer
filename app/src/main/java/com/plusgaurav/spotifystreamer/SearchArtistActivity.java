@@ -1,7 +1,9 @@
 package com.plusgaurav.spotifystreamer;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,7 +13,7 @@ import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
-public class SearchArtistActivity extends AppCompatActivity {
+public class SearchArtistActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String CLIENT_ID = "33bbc039194a4921a55a18dedc5bb329";
     private static final String REDIRECT_URI = "spotifystreamer://callback";
@@ -30,7 +32,10 @@ public class SearchArtistActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_artist);
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        pref.registerOnSharedPreferenceChangeListener(this);
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -41,21 +46,15 @@ public class SearchArtistActivity extends AppCompatActivity {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
 
             switch (response.getType()) {
-                // Response was successful and contains auth token
+
                 case TOKEN:
                     Toast.makeText(SearchArtistActivity.this, "Logged in!", Toast.LENGTH_SHORT).show();
                     setAccessToken(response.getAccessToken());
                     break;
 
-                // Auth flow returned an error
                 case ERROR:
                     Toast.makeText(SearchArtistActivity.this, "Could not log in, please restart app!", Toast.LENGTH_SHORT).show();
-                    // Handle error response
                     break;
-
-                // Most likely auth flow was cancelled
-                default:
-                    // Handle other cases
             }
         }
     }
@@ -69,21 +68,25 @@ public class SearchArtistActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            // TODO make settings interface
-            return true;
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
         }
-        if (id == R.id.action_logout) {
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String userType = prefs.getString(getString(R.string.user_type_key),
+                getString(R.string.user_type_key));
+        if (userType.equals("free")) {
             AuthenticationClient.logout(getApplicationContext());
             Toast.makeText(this, "Logged out!", Toast.LENGTH_LONG).show();
-        }
-        if (id == R.id.action_login) {
+        } else {
             AuthenticationRequest.Builder builder =
                     new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
             builder.setScopes(new String[]{"user-read-private", "streaming"});
@@ -91,7 +94,5 @@ public class SearchArtistActivity extends AppCompatActivity {
 
             AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 }

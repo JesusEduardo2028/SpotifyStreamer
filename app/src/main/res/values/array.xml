@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="user_type_values">
+        <item>free</item>
+        <item>premium</item>
+    </string-array>
+    <string-array name="user_type_options">
+        <item>Free User</item>
+        <item>Premium User</item>
+    </string-array>
+</resources>
