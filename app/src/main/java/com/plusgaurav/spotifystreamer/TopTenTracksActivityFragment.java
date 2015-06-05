@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -20,10 +21,13 @@ import java.util.List;
 import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
+import kaaes.spotify.webapi.android.SpotifyCallback;
+import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Image;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
+import retrofit.client.Response;
 
 public class TopTenTracksActivityFragment extends Fragment {
 
@@ -43,7 +47,6 @@ public class TopTenTracksActivityFragment extends Fragment {
         topTenTrackList = new ArrayList<>();
 
         // Keys used in Hashmap
-        // TODO change keys
         String[] from = {"trackName", "trackAlbum", "trackImageSmall"};
 
         // Ids of views in listview_layout
@@ -59,8 +62,11 @@ public class TopTenTracksActivityFragment extends Fragment {
         // get top ten tracks of the artist (async task)
         FetchTopTenTrack task = new FetchTopTenTrack();
         String[] artistInfo = getActivity().getIntent().getExtras().getStringArray(Intent.EXTRA_TEXT);
+
         // pass artistId
         task.execute(artistInfo[0]);
+
+        // TODO implement listener to start PlayMusicActivity
 
 
         return rootView;
@@ -85,26 +91,33 @@ public class TopTenTracksActivityFragment extends Fragment {
             Map<String, Object> options = new HashMap<>();
             options.put("country", "US");
 
-            // search artist
-            // TODO implement callback
-            Tracks topTracks = spotify.getArtistTopTrack(artistId[0], options);
+            // search top 10 tracks of the artist
+            spotify.getArtistTopTrack(artistId[0], options, new SpotifyCallback<Tracks>() {
+                @Override
+                public void failure(SpotifyError spotifyError) {
+                    Toast.makeText(getActivity(), "Could not retrieve tracks", Toast.LENGTH_LONG).show();
+                }
 
-            // update data source
-            topTenTrackList.clear();
-            for (Track track : topTracks.tracks) {
-                HashMap<String, String> trackMap = new HashMap<>();
-                trackMap.put("trackName", track.name);
-                trackMap.put("trackAlbum", track.album.name);
-                for (Image image : track.album.images) {
-                    if (image.width >= 200 && image.width <= 300) {
-                        trackMap.put("trackImageSmall", image.url);
-                    }
-                    if (image.width >= 640) {
-                        trackMap.put("trackImageLarge", image.url);
+                @Override
+                public void success(Tracks topTracks, Response response) {
+                    topTenTrackList.clear();
+                    for (Track track : topTracks.tracks) {
+                        HashMap<String, String> trackMap = new HashMap<>();
+                        trackMap.put("trackName", track.name);
+                        trackMap.put("trackAlbum", track.album.name);
+                        for (Image image : track.album.images) {
+                            if (image.width >= 200 && image.width <= 300) {
+                                trackMap.put("trackImageSmall", image.url);
+                            }
+                            if (image.width >= 640) {
+                                trackMap.put("trackImageLarge", image.url);
+                            }
+                            trackMap.put("trackDuration", String.valueOf(track.duration_ms));
+                        }
+                        topTenTrackList.add(trackMap);
                     }
                 }
-                topTenTrackList.add(trackMap);
-            }
+            });
 
             // return true if data source refreshed
             return !topTenTrackList.isEmpty();
@@ -120,7 +133,8 @@ public class TopTenTracksActivityFragment extends Fragment {
             if (isDataSourceRefereshed) {
                 topTenTrackAdapter.notifyDataSetChanged();
             } else {
-                // TODO handle if no tracks returned
+                String[] artistInfo = getActivity().getIntent().getExtras().getStringArray(Intent.EXTRA_TEXT);
+                Toast.makeText(getActivity(), "No tracks found for \"" + artistInfo[1] + "\"", Toast.LENGTH_LONG).show();
             }
         }
     }
