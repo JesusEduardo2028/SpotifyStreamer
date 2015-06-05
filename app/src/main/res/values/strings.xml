@@ -10,6 +10,4 @@
     <string name="login">Log in</string>
     <string name="user_type_key">user_type</string>
 
-<!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

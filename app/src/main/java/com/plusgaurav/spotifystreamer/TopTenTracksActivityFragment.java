@@ -8,15 +8,15 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -27,11 +27,10 @@ import kaaes.spotify.webapi.android.models.Tracks;
 
 public class TopTenTracksActivityFragment extends Fragment {
 
-    private static myTopTenTrackAdapter topTenTrackAdapter;
-    private static ArrayList<HashMap<String, String>> topTenTrackList;
+    private static TopTenTrackAdapter topTenTrackAdapter;
+    private ArrayList<trackListData> topTenTrackList;
 
     public TopTenTracksActivityFragment() {
-        //ReadFromParcel();
     }
 
     @Override
@@ -39,17 +38,10 @@ public class TopTenTracksActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_top_ten_tracks, container, false);
 
-        // top 10 track listview part
+        // TODO bind list to adapter
         topTenTrackList = new ArrayList<>();
+        topTenTrackAdapter = new TopTenTrackAdapter(getActivity(), topTenTrackList);
 
-        // Keys used in Hashmap
-        String[] from = {"trackName", "trackAlbum", "trackImageSmall"};
-
-        // Ids of views in listview_layout
-        int[] to = {R.id.trackName, R.id.trackAlbum, R.id.trackImage};
-
-        // initialize adapter
-        topTenTrackAdapter = new myTopTenTrackAdapter(getActivity(), topTenTrackList, R.layout.toptentracklistview_layout, from, to);
 
         // bind listview
         ListView artistView = (ListView) rootView.findViewById(R.id.artistListView);
@@ -92,19 +84,19 @@ public class TopTenTracksActivityFragment extends Fragment {
             Tracks topTracks = spotify.getArtistTopTrack(artistId[0], options);
             topTenTrackList.clear();
             for (Track track : topTracks.tracks) {
-                HashMap<String, String> trackMap = new HashMap<>();
-                trackMap.put("trackName", track.name);
-                trackMap.put("trackAlbum", track.album.name);
+                trackListData currentTrack = new trackListData();
+                currentTrack.setTrackName(track.name);
+                currentTrack.setTrackAlbum(track.album.name);
                 for (Image image : track.album.images) {
                     if (image.width >= 200 && image.width <= 300) {
-                        trackMap.put("trackImageSmall", image.url);
+                        currentTrack.setTrackImageSmall(image.url);
                     }
                     if (image.width >= 640) {
-                        trackMap.put("trackImageLarge", image.url);
+                        currentTrack.setTrackImageLarge(image.url);
                     }
-                    trackMap.put("trackDuration", String.valueOf(track.duration_ms));
+                    currentTrack.setTrackPreviewUrl(track.preview_url);
                 }
-                topTenTrackList.add(trackMap);
+                topTenTrackList.add(currentTrack);
             }
 
             // return true if data source refreshed
@@ -129,57 +121,52 @@ public class TopTenTracksActivityFragment extends Fragment {
     }
 
 
-    // create custom adapter
+    // custom adapter
     // got help from "http://stackoverflow.com/questions/8166497/custom-adapter-for-list-view"
-    public class myTopTenTrackAdapter extends SimpleAdapter {
+    public class TopTenTrackAdapter extends BaseAdapter {
+        ArrayList topTenTrackList = new ArrayList();
+        Context context;
 
-        public myTopTenTrackAdapter(Context context, List<HashMap<String, String>> data, int resource, String[] from, int[] to) {
-            super(context, data, resource, from, to);
+
+        public TopTenTrackAdapter(Context context, ArrayList topTenTrackList) {
+            this.topTenTrackList = topTenTrackList;
+            this.context = context;
         }
 
-        public View getView(int position, View convertView, ViewGroup parent) {
+        @Override
+        public int getCount() {
+            return topTenTrackList.size();
+        }
 
-            View view = super.getView(position, convertView, parent);
+        @Override
+        public trackListData getItem(int position) {
+            return (trackListData) topTenTrackList.get(position);
+        }
 
-            // get reference to imageview
-            de.hdodenhof.circleimageview.CircleImageView artistImageView = (de.hdodenhof.circleimageview.CircleImageView) view.findViewById(R.id.trackImage);
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
 
-            // get the url from the data source
-            String url = (String) ((Map) getItem(position)).get("trackImageSmall");
+        @Override
+        public View getView(int position, View convertView, ViewGroup viewGroup) {
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View row = inflater.inflate(R.layout.toptentracklistview_layout, viewGroup, false);
 
-            // load it to the imageview
-            if (url != null) {
-                Picasso.with(view.getContext()).load(url).placeholder(R.drawable.ic_play_circle_filled_black_36dp).error(R.drawable.ic_play_circle_filled_black_36dp).into(artistImageView);
-            }
+            // put track image
+            de.hdodenhof.circleimageview.CircleImageView trackImageView = (de.hdodenhof.circleimageview.CircleImageView) row.findViewById(R.id.trackImage);
+            String url = getItem(position).getTrackImageSmall();
+            Picasso.with(row.getContext()).load(url).placeholder(R.drawable.ic_play_circle_filled_black_36dp).error(R.drawable.ic_play_circle_filled_black_36dp).into(trackImageView);
 
-            return view;
+            // put track name
+            TextView trackName = (TextView) row.findViewById(R.id.trackName);
+            trackName.setText(getItem(position).getTrackName());
+
+            // put track album
+            TextView trackAlbum = (TextView) row.findViewById(R.id.trackAlbum);
+            trackAlbum.setText(getItem(position).getTrackAlbum());
+
+            return row;
         }
     }
-
-
-    // TODO implement parcelable
-/*    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel out, int flags) {
-        out.writeList(topTenTrackList);
-    }
-
-    public static final Parcelable.Creator<TopTenTracksActivityFragment> CREATOR =
-            new Parcelable.Creator<TopTenTracksActivityFragment>() {
-                public TopTenTracksActivityFragment createFromParcel(Parcel in) {
-                    return new TopTenTracksActivityFragment.topTenTrackList(in);
-                }
-
-                public TopTenTracksActivityFragment[] newArray(int size) {
-                    return new TopTenTracksActivityFragment[size];
-                }
-            };
-
-    private void ReadFromParcel(Parcel in) {
-        topTenTrackList = in.createTypedArrayList(TopTenTracksActivityFragment.CREATOR);
-    }*/
 }
