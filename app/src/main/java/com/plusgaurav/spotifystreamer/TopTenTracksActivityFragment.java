@@ -21,7 +21,6 @@ import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.Image;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
 
@@ -29,8 +28,28 @@ public class TopTenTracksActivityFragment extends Fragment {
 
     private static TopTenTrackAdapter topTenTrackAdapter;
     private ArrayList<TrackListData> topTenTrackList;
+    ListView artistView;
 
     public TopTenTracksActivityFragment() {
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            topTenTrackList = savedInstanceState.getParcelableArrayList("savedtopTenTrackList");
+            bindView();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if (topTenTrackList != null) {
+            outState.putParcelableArrayList("savedtopTenTrackList", topTenTrackList);
+        }
     }
 
     @Override
@@ -38,14 +57,10 @@ public class TopTenTracksActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_top_ten_tracks, container, false);
 
-        // initialize adapter
+        // bind view
         topTenTrackList = new ArrayList<>();
-        topTenTrackAdapter = new TopTenTrackAdapter(getActivity(), topTenTrackList);
-
-
-        // bind listview
-        ListView artistView = (ListView) rootView.findViewById(R.id.artistListView);
-        artistView.setAdapter(topTenTrackAdapter);
+        artistView = (ListView) rootView.findViewById(R.id.artistListView);
+        bindView();
 
         // get top ten tracks of the artist (async task)
         FetchTopTenTrack task = new FetchTopTenTrack();
@@ -60,6 +75,16 @@ public class TopTenTracksActivityFragment extends Fragment {
 
         return rootView;
     }
+
+    private void bindView() {
+
+        // initialize adapter
+        topTenTrackAdapter = new TopTenTrackAdapter(getActivity(), topTenTrackList);
+
+        // bind listview
+        artistView.setAdapter(topTenTrackAdapter);
+    }
+
 
     public class FetchTopTenTrack extends AsyncTask<String, Void, Boolean> {
 
@@ -84,18 +109,7 @@ public class TopTenTracksActivityFragment extends Fragment {
             Tracks topTracks = spotify.getArtistTopTrack(artistId[0], options);
             topTenTrackList.clear();
             for (Track track : topTracks.tracks) {
-                TrackListData currentTrack = new TrackListData();
-                currentTrack.setTrackName(track.name);
-                currentTrack.setTrackAlbum(track.album.name);
-                for (Image image : track.album.images) {
-                    if (image.width >= 200 && image.width <= 300) {
-                        currentTrack.setTrackImageSmall(image.url);
-                    }
-                    if (image.width >= 640) {
-                        currentTrack.setTrackImageLarge(image.url);
-                    }
-                    currentTrack.setTrackPreviewUrl(track.preview_url);
-                }
+                TrackListData currentTrack = new TrackListData(track);
                 topTenTrackList.add(currentTrack);
             }
 
@@ -112,6 +126,7 @@ public class TopTenTracksActivityFragment extends Fragment {
         protected void onPostExecute(Boolean isDataSourceRefereshed) {
             if (isDataSourceRefereshed) {
                 topTenTrackAdapter.notifyDataSetChanged();
+                Toast.makeText(getActivity(), "I am here!", Toast.LENGTH_LONG).show();
             } else {
                 String[] artistInfo = getActivity().getIntent().getExtras().getStringArray(Intent.EXTRA_TEXT);
                 assert artistInfo != null;
@@ -155,16 +170,16 @@ public class TopTenTracksActivityFragment extends Fragment {
 
             // put track image
             de.hdodenhof.circleimageview.CircleImageView trackImageView = (de.hdodenhof.circleimageview.CircleImageView) row.findViewById(R.id.trackImage);
-            String url = getItem(position).getTrackImageSmall();
+            String url = getItem(position).trackImageSmall;
             Picasso.with(row.getContext()).load(url).placeholder(R.drawable.ic_play_circle_filled_black_36dp).error(R.drawable.ic_play_circle_filled_black_36dp).into(trackImageView);
 
             // put track name
             TextView trackName = (TextView) row.findViewById(R.id.trackName);
-            trackName.setText(getItem(position).getTrackName());
+            trackName.setText(getItem(position).trackName);
 
             // put track album
             TextView trackAlbum = (TextView) row.findViewById(R.id.trackAlbum);
-            trackAlbum.setText(getItem(position).getTrackAlbum());
+            trackAlbum.setText(getItem(position).trackAlbum);
 
             return row;
         }

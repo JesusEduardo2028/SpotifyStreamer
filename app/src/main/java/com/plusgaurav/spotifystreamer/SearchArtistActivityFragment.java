@@ -109,17 +109,6 @@ public class SearchArtistActivityFragment extends Fragment {
 
         // bind listview
         artistView.setAdapter(artistAdapter);
-        // open top 10 track view
-        artistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String artistId = artistList.get(position).artistId;
-                String artistName = artistList.get(position).artistName;
-                Intent intent = new Intent(getActivity(), TopTenTracksActivity.class)
-                        .putExtra(Intent.EXTRA_TEXT, new String[]{artistId, artistName});
-                startActivity(intent);
-            }
-        });
     }
 
     public class FetchArtistTask extends AsyncTask<String, Void, Boolean> {
