@@ -20,13 +20,10 @@ import java.util.List;
 import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
-import kaaes.spotify.webapi.android.SpotifyCallback;
-import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Image;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
-import retrofit.client.Response;
 
 public class TopTenTracksActivityFragment extends Fragment {
 
@@ -92,33 +89,23 @@ public class TopTenTracksActivityFragment extends Fragment {
             options.put("country", "US");
 
             // search top 10 tracks of the artist
-            spotify.getArtistTopTrack(artistId[0], options, new SpotifyCallback<Tracks>() {
-                @Override
-                public void failure(SpotifyError spotifyError) {
-                    // TODO wait for callback
-                    Toast.makeText(getActivity(), "Could not retrieve tracks", Toast.LENGTH_LONG).show();
-                }
-
-                @Override
-                public void success(Tracks topTracks, Response response) {
-                    topTenTrackList.clear();
-                    for (Track track : topTracks.tracks) {
-                        HashMap<String, String> trackMap = new HashMap<>();
-                        trackMap.put("trackName", track.name);
-                        trackMap.put("trackAlbum", track.album.name);
-                        for (Image image : track.album.images) {
-                            if (image.width >= 200 && image.width <= 300) {
-                                trackMap.put("trackImageSmall", image.url);
-                            }
-                            if (image.width >= 640) {
-                                trackMap.put("trackImageLarge", image.url);
-                            }
-                            trackMap.put("trackDuration", String.valueOf(track.duration_ms));
-                        }
-                        topTenTrackList.add(trackMap);
+            Tracks topTracks = spotify.getArtistTopTrack(artistId[0], options);
+            topTenTrackList.clear();
+            for (Track track : topTracks.tracks) {
+                HashMap<String, String> trackMap = new HashMap<>();
+                trackMap.put("trackName", track.name);
+                trackMap.put("trackAlbum", track.album.name);
+                for (Image image : track.album.images) {
+                    if (image.width >= 200 && image.width <= 300) {
+                        trackMap.put("trackImageSmall", image.url);
                     }
+                    if (image.width >= 640) {
+                        trackMap.put("trackImageLarge", image.url);
+                    }
+                    trackMap.put("trackDuration", String.valueOf(track.duration_ms));
                 }
-            });
+                topTenTrackList.add(trackMap);
+            }
 
             // return true if data source refreshed
             return !topTenTrackList.isEmpty();

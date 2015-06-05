@@ -26,13 +26,10 @@ import java.util.List;
 import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
-import kaaes.spotify.webapi.android.SpotifyCallback;
-import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.ArtistsPager;
 import kaaes.spotify.webapi.android.models.Image;
-import retrofit.client.Response;
 
 public class SearchArtistActivityFragment extends Fragment {
 
@@ -128,33 +125,22 @@ public class SearchArtistActivityFragment extends Fragment {
             }
 
             // search artist
-            spotify.searchArtists(artistName[0], options, new SpotifyCallback<ArtistsPager>() {
-                @Override
-                public void failure(SpotifyError spotifyError) {
-                    // TODO wait for callback
-                    Toast.makeText(getActivity(), "Could not retrieve artists", Toast.LENGTH_LONG).show();
-                }
-
-                @Override
-                public void success(ArtistsPager artistsPager, Response response) {
-                    // update data source
-                    artistList.clear();
-                    for (Artist artist : artistsPager.artists.items) {
-                        HashMap<String, String> artistMap = new HashMap<>();
-                        artistMap.put("artistName", artist.name);
-                        artistMap.put("artistId", artist.id);
-                        for (Image image : artist.images) {
-                            if (image.width >= 200 && image.width <= 300) {
-                                artistMap.put("artistImage", image.url);
-                                break;
-                            }
-                        }
-                        artistList.add(artistMap);
+            ArtistsPager artistsPager = spotify.searchArtists(artistName[0], options);
+            // update data source
+            artistList.clear();
+            for (Artist artist : artistsPager.artists.items) {
+                HashMap<String, String> artistMap = new HashMap<>();
+                artistMap.put("artistName", artist.name);
+                artistMap.put("artistId", artist.id);
+                for (Image image : artist.images) {
+                    if (image.width >= 200 && image.width <= 300) {
+                        artistMap.put("artistImage", image.url);
+                        break;
                     }
                 }
-            });
-
-
+                artistList.add(artistMap);
+            }
+            
             // return true if data source refreshed
             return !artistList.isEmpty();
         }
