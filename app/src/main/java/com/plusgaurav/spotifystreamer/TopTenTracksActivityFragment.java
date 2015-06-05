@@ -37,6 +37,7 @@ public class TopTenTracksActivityFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        // get saved datasource if present
         if (savedInstanceState != null) {
             topTenTrackList = savedInstanceState.getParcelableArrayList("savedtopTenTrackList");
             bindView();
@@ -47,6 +48,7 @@ public class TopTenTracksActivityFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
+        // save data source
         if (topTenTrackList != null) {
             outState.putParcelableArrayList("savedtopTenTrackList", topTenTrackList);
         }
@@ -57,7 +59,7 @@ public class TopTenTracksActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_top_ten_tracks, container, false);
 
-        // bind view
+        // bind view with adapter
         topTenTrackList = new ArrayList<>();
         artistView = (ListView) rootView.findViewById(R.id.artistListView);
         bindView();
@@ -126,7 +128,6 @@ public class TopTenTracksActivityFragment extends Fragment {
         protected void onPostExecute(Boolean isDataSourceRefereshed) {
             if (isDataSourceRefereshed) {
                 topTenTrackAdapter.notifyDataSetChanged();
-                Toast.makeText(getActivity(), "I am here!", Toast.LENGTH_LONG).show();
             } else {
                 String[] artistInfo = getActivity().getIntent().getExtras().getStringArray(Intent.EXTRA_TEXT);
                 assert artistInfo != null;

@@ -43,6 +43,7 @@ public class SearchArtistActivityFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        // get saved datasource if present
         if (savedInstanceState != null) {
             artistList = savedInstanceState.getParcelableArrayList("savedArtistList");
             bindView();
@@ -53,6 +54,7 @@ public class SearchArtistActivityFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
+        // save data source
         if (artistList != null) {
             outState.putParcelableArrayList("savedArtistList", artistList);
         }
@@ -84,9 +86,11 @@ public class SearchArtistActivityFragment extends Fragment {
             }
         });
 
+        // bind view with adapter
         artistList = new ArrayList<>();
         artistView = (ListView) rootView.findViewById(R.id.artistListView);
         bindView();
+
         // open top 10 track view
         artistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -98,7 +102,6 @@ public class SearchArtistActivityFragment extends Fragment {
                 startActivity(intent);
             }
         });
-
         return rootView;
     }
 
