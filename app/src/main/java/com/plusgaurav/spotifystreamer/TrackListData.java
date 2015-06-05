@@ -1,12 +1,12 @@
 package com.plusgaurav.spotifystreamer;
 
 public class TrackListData {
+
     String trackName;
     String trackAlbum;
     String trackImageSmall;
     String trackImageLarge;
     String trackPreviewUrl;
-
 
     public String getTrackName() {
         return trackName;
