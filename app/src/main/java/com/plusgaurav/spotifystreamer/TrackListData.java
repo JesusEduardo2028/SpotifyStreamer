@@ -1,6 +1,6 @@
 package com.plusgaurav.spotifystreamer;
 
-public class trackListData {
+public class TrackListData {
     String trackName;
     String trackAlbum;
     String trackImageSmall;

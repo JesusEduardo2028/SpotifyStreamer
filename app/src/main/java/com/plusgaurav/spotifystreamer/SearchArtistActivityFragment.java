@@ -12,9 +12,9 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,7 +22,6 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -34,8 +33,8 @@ import kaaes.spotify.webapi.android.models.Image;
 public class SearchArtistActivityFragment extends Fragment {
 
     private EditText searchArtistEditText;
-    private static myArtistAdapter artistAdapter;
-    private static List<HashMap<String, String>> artistList;
+    private static ArtistAdapter artistAdapter;
+    private ArrayList<ArtistListData> artistList;
 
     public SearchArtistActivityFragment() {
     }
@@ -67,17 +66,9 @@ public class SearchArtistActivityFragment extends Fragment {
         });
 
 
-        // artist listview part
-        artistList = new ArrayList<>();
-
-        // Keys used in Hashmap
-        String[] from = {"artistName", "artistImage"};
-
-        // Ids of views in listview_layout
-        int[] to = {R.id.artistName, R.id.artistImage};
-
         // initialize adapter
-        artistAdapter = new myArtistAdapter(getActivity(), artistList, R.layout.artistlistview_layout, from, to);
+        artistList = new ArrayList<>();
+        artistAdapter = new ArtistAdapter(getActivity(), artistList);
 
         // bind listview
         ListView artistView = (ListView) rootView.findViewById(R.id.artistListView);
@@ -87,8 +78,8 @@ public class SearchArtistActivityFragment extends Fragment {
         artistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String artistId = artistList.get(position).get("artistId");
-                String artistName = artistList.get(position).get("artistName");
+                String artistId = artistList.get(position).getArtistId();
+                String artistName = artistList.get(position).getArtistName();
                 Intent intent = new Intent(getActivity(), TopTenTracksActivity.class)
                         .putExtra(Intent.EXTRA_TEXT, new String[]{artistId, artistName});
                 startActivity(intent);
@@ -129,18 +120,18 @@ public class SearchArtistActivityFragment extends Fragment {
             // update data source
             artistList.clear();
             for (Artist artist : artistsPager.artists.items) {
-                HashMap<String, String> artistMap = new HashMap<>();
-                artistMap.put("artistName", artist.name);
-                artistMap.put("artistId", artist.id);
+                ArtistListData currentArtist = new ArtistListData();
+                currentArtist.setArtistName(artist.name);
+                currentArtist.setArtistId(artist.id);
                 for (Image image : artist.images) {
                     if (image.width >= 200 && image.width <= 300) {
-                        artistMap.put("artistImage", image.url);
+                        currentArtist.setArtistImage(image.url);
                         break;
                     }
                 }
-                artistList.add(artistMap);
+                artistList.add(currentArtist);
             }
-            
+
             // return true if data source refreshed
             return !artistList.isEmpty();
         }
@@ -160,29 +151,48 @@ public class SearchArtistActivityFragment extends Fragment {
         }
     }
 
-    // create custom adapter
+    // custom adapter
     // got help from "http://stackoverflow.com/questions/8166497/custom-adapter-for-list-view"
-    public class myArtistAdapter extends SimpleAdapter {
+    public class ArtistAdapter extends BaseAdapter {
+        ArrayList artistList = new ArrayList();
+        Context context;
 
-        public myArtistAdapter(Context context, List<HashMap<String, String>> data, int resource, String[] from, int[] to) {
-            super(context, data, resource, from, to);
+
+        public ArtistAdapter(Context context, ArrayList artistList) {
+            this.artistList = artistList;
+            this.context = context;
         }
 
-        public View getView(int position, View convertView, ViewGroup parent) {
+        @Override
+        public int getCount() {
+            return artistList.size();
+        }
 
-            View view = super.getView(position, convertView, parent);
+        @Override
+        public ArtistListData getItem(int position) {
+            return (ArtistListData) artistList.get(position);
+        }
 
-            // get reference to imageview
-            de.hdodenhof.circleimageview.CircleImageView artistImageView = (de.hdodenhof.circleimageview.CircleImageView) view.findViewById(R.id.artistImage);
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
 
-            // get the url from the data source
-            String url = (String) ((Map) getItem(position)).get("artistImage");
+        @Override
+        public View getView(int position, View convertView, ViewGroup viewGroup) {
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View row = inflater.inflate(R.layout.artistlistview_layout, viewGroup, false);
 
-            // load it to the imageview
-            Picasso.with(view.getContext()).load(url).placeholder(R.drawable.ic_play_circle_filled_black_36dp).error(R.drawable.ic_play_circle_filled_black_36dp).into(artistImageView);
+            // put artist image
+            de.hdodenhof.circleimageview.CircleImageView artistImageView = (de.hdodenhof.circleimageview.CircleImageView) row.findViewById(R.id.artistImage);
+            String url = getItem(position).getArtistImage();
+            Picasso.with(row.getContext()).load(url).placeholder(R.drawable.ic_play_circle_filled_black_36dp).error(R.drawable.ic_play_circle_filled_black_36dp).into(artistImageView);
 
+            // put artist name
+            TextView trackName = (TextView) row.findViewById(R.id.artistName);
+            trackName.setText(getItem(position).getArtistName());
 
-            return view;
+            return row;
         }
     }
 }

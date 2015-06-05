@@ -28,7 +28,7 @@ import kaaes.spotify.webapi.android.models.Tracks;
 public class TopTenTracksActivityFragment extends Fragment {
 
     private static TopTenTrackAdapter topTenTrackAdapter;
-    private ArrayList<trackListData> topTenTrackList;
+    private ArrayList<TrackListData> topTenTrackList;
 
     public TopTenTracksActivityFragment() {
     }
@@ -38,7 +38,7 @@ public class TopTenTracksActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_top_ten_tracks, container, false);
 
-        // TODO bind list to adapter
+        // initialize adapter
         topTenTrackList = new ArrayList<>();
         topTenTrackAdapter = new TopTenTrackAdapter(getActivity(), topTenTrackList);
 
@@ -84,7 +84,7 @@ public class TopTenTracksActivityFragment extends Fragment {
             Tracks topTracks = spotify.getArtistTopTrack(artistId[0], options);
             topTenTrackList.clear();
             for (Track track : topTracks.tracks) {
-                trackListData currentTrack = new trackListData();
+                TrackListData currentTrack = new TrackListData();
                 currentTrack.setTrackName(track.name);
                 currentTrack.setTrackAlbum(track.album.name);
                 for (Image image : track.album.images) {
@@ -139,8 +139,8 @@ public class TopTenTracksActivityFragment extends Fragment {
         }
 
         @Override
-        public trackListData getItem(int position) {
-            return (trackListData) topTenTrackList.get(position);
+        public TrackListData getItem(int position) {
+            return (TrackListData) topTenTrackList.get(position);
         }
 
         @Override
