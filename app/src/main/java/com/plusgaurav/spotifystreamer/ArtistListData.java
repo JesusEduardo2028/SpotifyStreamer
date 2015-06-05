@@ -1,33 +1,56 @@
 package com.plusgaurav.spotifystreamer;
 
-public class ArtistListData {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import kaaes.spotify.webapi.android.models.Artist;
+import kaaes.spotify.webapi.android.models.Image;
+
+public class ArtistListData implements Parcelable {
     String artistName;
     String artistId;
     String artistImage;
 
-    public String getArtistName() {
-        return artistName;
+    public ArtistListData(Artist artist) {
+        artistName = artist.name;
+        artistId = artist.id;
+        for (Image image : artist.images) {
+            if (image.width >= 200 && image.width <= 300) {
+                artistImage = image.url;
+                break;
+            }
+        }
     }
 
-    public void setArtistName(String artistName) {
-        this.artistName = artistName;
+    public ArtistListData(Parcel in) {
+        ReadFromParcel(in);
     }
 
-    public String getArtistId() {
-        return artistId;
+    private void ReadFromParcel(Parcel in) {
+        artistName = in.readString();
+        artistId = in.readString();
+        artistImage = in.readString();
     }
 
-    public void setArtistId(String artistId) {
-        this.artistId = artistId;
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeString(artistName);
+        out.writeString(artistId);
+        out.writeString(artistImage);
     }
 
-    public String getArtistImage() {
-        return artistImage;
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
-    public void setArtistImage(String artistImage) {
-        this.artistImage = artistImage;
-    }
+    public static final Parcelable.Creator<ArtistListData> CREATOR = new Parcelable.Creator<ArtistListData>() {
+        public ArtistListData createFromParcel(Parcel in) {
+            return new ArtistListData(in);
+        }
 
-
+        public ArtistListData[] newArray(int size) {
+            return new ArtistListData[size];
+        }
+    };
 }

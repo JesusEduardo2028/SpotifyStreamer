@@ -28,15 +28,34 @@ import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.ArtistsPager;
-import kaaes.spotify.webapi.android.models.Image;
 
 public class SearchArtistActivityFragment extends Fragment {
 
     private EditText searchArtistEditText;
     private static ArtistAdapter artistAdapter;
     private ArrayList<ArtistListData> artistList;
+    ListView artistView;
 
     public SearchArtistActivityFragment() {
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            artistList = savedInstanceState.getParcelableArrayList("savedArtistList");
+            bindView();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if (artistList != null) {
+            outState.putParcelableArrayList("savedArtistList", artistList);
+        }
     }
 
     @Override
@@ -65,21 +84,15 @@ public class SearchArtistActivityFragment extends Fragment {
             }
         });
 
-
-        // initialize adapter
         artistList = new ArrayList<>();
-        artistAdapter = new ArtistAdapter(getActivity(), artistList);
-
-        // bind listview
-        ListView artistView = (ListView) rootView.findViewById(R.id.artistListView);
-        artistView.setAdapter(artistAdapter);
-
+        artistView = (ListView) rootView.findViewById(R.id.artistListView);
+        bindView();
         // open top 10 track view
         artistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String artistId = artistList.get(position).getArtistId();
-                String artistName = artistList.get(position).getArtistName();
+                String artistId = artistList.get(position).artistId;
+                String artistName = artistList.get(position).artistName;
                 Intent intent = new Intent(getActivity(), TopTenTracksActivity.class)
                         .putExtra(Intent.EXTRA_TEXT, new String[]{artistId, artistName});
                 startActivity(intent);
@@ -87,6 +100,26 @@ public class SearchArtistActivityFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    private void bindView() {
+
+        // initialize adapter
+        artistAdapter = new ArtistAdapter(getActivity(), artistList);
+
+        // bind listview
+        artistView.setAdapter(artistAdapter);
+        // open top 10 track view
+        artistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String artistId = artistList.get(position).artistId;
+                String artistName = artistList.get(position).artistName;
+                Intent intent = new Intent(getActivity(), TopTenTracksActivity.class)
+                        .putExtra(Intent.EXTRA_TEXT, new String[]{artistId, artistName});
+                startActivity(intent);
+            }
+        });
     }
 
     public class FetchArtistTask extends AsyncTask<String, Void, Boolean> {
@@ -120,15 +153,7 @@ public class SearchArtistActivityFragment extends Fragment {
             // update data source
             artistList.clear();
             for (Artist artist : artistsPager.artists.items) {
-                ArtistListData currentArtist = new ArtistListData();
-                currentArtist.setArtistName(artist.name);
-                currentArtist.setArtistId(artist.id);
-                for (Image image : artist.images) {
-                    if (image.width >= 200 && image.width <= 300) {
-                        currentArtist.setArtistImage(image.url);
-                        break;
-                    }
-                }
+                ArtistListData currentArtist = new ArtistListData(artist);
                 artistList.add(currentArtist);
             }
 
@@ -185,12 +210,12 @@ public class SearchArtistActivityFragment extends Fragment {
 
             // put artist image
             de.hdodenhof.circleimageview.CircleImageView artistImageView = (de.hdodenhof.circleimageview.CircleImageView) row.findViewById(R.id.artistImage);
-            String url = getItem(position).getArtistImage();
+            String url = getItem(position).artistImage;
             Picasso.with(row.getContext()).load(url).placeholder(R.drawable.ic_play_circle_filled_black_36dp).error(R.drawable.ic_play_circle_filled_black_36dp).into(artistImageView);
 
             // put artist name
-            TextView trackName = (TextView) row.findViewById(R.id.artistName);
-            trackName.setText(getItem(position).getArtistName());
+            TextView artistName = (TextView) row.findViewById(R.id.artistName);
+            artistName.setText(getItem(position).artistName);
 
             return row;
         }
