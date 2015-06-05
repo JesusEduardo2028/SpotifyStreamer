@@ -5,6 +5,6 @@
         android:entries="@array/user_type_options"
         android:entryValues="@array/user_type_values"
         android:key="@string/user_type_key"
-        android:title="Access" />
+        android:title="User Type" />
 
 </PreferenceScreen>

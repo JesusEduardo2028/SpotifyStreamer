@@ -21,8 +21,8 @@
         android:id="@+id/artistName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
         android:layout_marginTop="5dp"
+        android:gravity="center_vertical"
         android:minHeight="?android:attr/listPreferredItemHeight"
         android:textSize="16dp" />
 
