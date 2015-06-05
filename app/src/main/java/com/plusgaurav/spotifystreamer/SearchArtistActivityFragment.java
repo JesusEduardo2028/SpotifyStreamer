@@ -13,7 +13,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -132,7 +131,8 @@ public class SearchArtistActivityFragment extends Fragment {
             spotify.searchArtists(artistName[0], options, new SpotifyCallback<ArtistsPager>() {
                 @Override
                 public void failure(SpotifyError spotifyError) {
-                    Toast.makeText(getActivity(),"Could not retrieve artists",Toast.LENGTH_LONG).show();
+                    // TODO wait for callback
+                    Toast.makeText(getActivity(), "Could not retrieve artists", Toast.LENGTH_LONG).show();
                 }
 
                 @Override
@@ -187,7 +187,7 @@ public class SearchArtistActivityFragment extends Fragment {
             View view = super.getView(position, convertView, parent);
 
             // get reference to imageview
-            ImageView artistImageView = (ImageView) view.findViewById(R.id.artistImage);
+            de.hdodenhof.circleimageview.CircleImageView artistImageView = (de.hdodenhof.circleimageview.CircleImageView) view.findViewById(R.id.artistImage);
 
             // get the url from the data source
             String url = (String) ((Map) getItem(position)).get("artistImage");

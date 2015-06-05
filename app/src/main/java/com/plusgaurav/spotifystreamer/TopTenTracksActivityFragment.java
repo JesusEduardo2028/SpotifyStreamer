@@ -8,7 +8,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
@@ -64,6 +63,7 @@ public class TopTenTracksActivityFragment extends Fragment {
         String[] artistInfo = getActivity().getIntent().getExtras().getStringArray(Intent.EXTRA_TEXT);
 
         // pass artistId
+        assert artistInfo != null;
         task.execute(artistInfo[0]);
 
         // TODO implement listener to start PlayMusicActivity
@@ -95,6 +95,7 @@ public class TopTenTracksActivityFragment extends Fragment {
             spotify.getArtistTopTrack(artistId[0], options, new SpotifyCallback<Tracks>() {
                 @Override
                 public void failure(SpotifyError spotifyError) {
+                    // TODO wait for callback
                     Toast.makeText(getActivity(), "Could not retrieve tracks", Toast.LENGTH_LONG).show();
                 }
 
@@ -134,6 +135,7 @@ public class TopTenTracksActivityFragment extends Fragment {
                 topTenTrackAdapter.notifyDataSetChanged();
             } else {
                 String[] artistInfo = getActivity().getIntent().getExtras().getStringArray(Intent.EXTRA_TEXT);
+                assert artistInfo != null;
                 Toast.makeText(getActivity(), "No tracks found for \"" + artistInfo[1] + "\"", Toast.LENGTH_LONG).show();
             }
         }
@@ -153,7 +155,7 @@ public class TopTenTracksActivityFragment extends Fragment {
             View view = super.getView(position, convertView, parent);
 
             // get reference to imageview
-            ImageView artistImageView = (ImageView) view.findViewById(R.id.trackImage);
+            de.hdodenhof.circleimageview.CircleImageView artistImageView = (de.hdodenhof.circleimageview.CircleImageView) view.findViewById(R.id.trackImage);
 
             // get the url from the data source
             String url = (String) ((Map) getItem(position)).get("trackImageSmall");
