@@ -124,34 +124,38 @@ public class SearchArtistActivityFragment extends Fragment {
         @Override
         protected Boolean doInBackground(String... artistName) {
 
-            String[] result = new String[20];
+            // for catching network extra exceptions
+            try {
+                // do spotify transaction
+                SpotifyApi api = new SpotifyApi();
+                api.setAccessToken(SearchArtistActivity.getAccessToken());
+                SpotifyService spotify = api.getService();
 
-            // do spotify transaction
-            SpotifyApi api = new SpotifyApi();
-            api.setAccessToken(SearchArtistActivity.getAccessToken());
-            SpotifyService spotify = api.getService();
+                // set options
+                Map<String, Object> options = new HashMap<>();
+                options.put("limit", 20);
 
-            // set options
-            Map<String, Object> options = new HashMap<>();
-            options.put("limit", 20);
+                // check for empty string
+                if (artistName[0].equals("")) {
+                    return false;
+                }
 
-            // check for empty string
-            if (artistName[0].equals("")) {
+                // search artist
+                ArtistsPager artistsPager = spotify.searchArtists(artistName[0], options);
+
+                // update data source
+                artistList.clear();
+                for (Artist artist : artistsPager.artists.items) {
+                    ArtistListData currentArtist = new ArtistListData(artist);
+                    artistList.add(currentArtist);
+                }
+
+                // return true if data source refreshed
+                return !artistList.isEmpty();
+            } catch (Exception e) {
                 return false;
             }
 
-            // search artist
-            ArtistsPager artistsPager = spotify.searchArtists(artistName[0], options);
-
-            // update data source
-            artistList.clear();
-            for (Artist artist : artistsPager.artists.items) {
-                ArtistListData currentArtist = new ArtistListData(artist);
-                artistList.add(currentArtist);
-            }
-
-            // return true if data source refreshed
-            return !artistList.isEmpty();
         }
 
         @Override
@@ -164,7 +168,7 @@ public class SearchArtistActivityFragment extends Fragment {
             if (isDataSourceRefreshed) {
                 artistAdapter.notifyDataSetChanged();
             } else {
-                Toast.makeText(getActivity(), "No results found for \"" + searchArtistEditText.getText() + "\"", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "No results found for \"" + searchArtistEditText.getText() + "\". Please refine your search.", Toast.LENGTH_LONG).show();
             }
         }
     }

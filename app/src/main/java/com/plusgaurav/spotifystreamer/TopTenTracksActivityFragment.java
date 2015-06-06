@@ -98,25 +98,31 @@ public class TopTenTracksActivityFragment extends Fragment {
         @Override
         protected Boolean doInBackground(String... artistId) {
 
-            // do spotify transaction
-            SpotifyApi api = new SpotifyApi();
-            api.setAccessToken(SearchArtistActivity.getAccessToken());
-            SpotifyService spotify = api.getService();
+            // for catching network extra exceptions
+            try {
+                // do spotify transaction
+                SpotifyApi api = new SpotifyApi();
+                api.setAccessToken(SearchArtistActivity.getAccessToken());
+                SpotifyService spotify = api.getService();
 
-            // set options
-            Map<String, Object> options = new HashMap<>();
-            options.put("country", "US");
+                // set options
+                Map<String, Object> options = new HashMap<>();
+                options.put("country", "US");
 
-            // search top 10 tracks of the artist
-            Tracks topTracks = spotify.getArtistTopTrack(artistId[0], options);
-            topTenTrackList.clear();
-            for (Track track : topTracks.tracks) {
-                TrackListData currentTrack = new TrackListData(track);
-                topTenTrackList.add(currentTrack);
+                // search top 10 tracks of the artist
+                Tracks topTracks = spotify.getArtistTopTrack(artistId[0], options);
+                topTenTrackList.clear();
+                for (Track track : topTracks.tracks) {
+                    TrackListData currentTrack = new TrackListData(track);
+                    topTenTrackList.add(currentTrack);
+                }
+
+                // return true if data source refreshed
+                return !topTenTrackList.isEmpty();
+            } catch (Exception e) {
+                return false;
             }
 
-            // return true if data source refreshed
-            return !topTenTrackList.isEmpty();
         }
 
         @Override

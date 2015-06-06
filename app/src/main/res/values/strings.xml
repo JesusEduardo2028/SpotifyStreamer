@@ -1,13 +1,15 @@
 <resources>
     <string name="app_name" translatable="false">Spotify Streamer</string>
 
-    <string name="action_settings">Settings</string>
 
+    <!-- Search Activity -->
     <string name="search_artists_edittext_hint">Search artists here . . .</string>
+
+    <!-- top 10 track activity -->
     <string name="title_activity_top_ten_tracks">Top 10 Tracks</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="logout">Log out</string>
-    <string name="login">Log in</string>
+
+    <!-- for preference -->
+    <string name="action_settings">Settings</string>
     <string name="user_type_key">user_type</string>
 
 </resources>
