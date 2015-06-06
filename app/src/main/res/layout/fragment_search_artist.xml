@@ -20,6 +20,14 @@
         <requestFocus />
     </EditText>
 
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+
     <ListView
         android:id="@+id/artistListView"
         android:layout_width="match_parent"

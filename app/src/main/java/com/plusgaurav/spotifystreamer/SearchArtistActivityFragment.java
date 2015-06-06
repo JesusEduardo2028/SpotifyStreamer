@@ -15,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +36,7 @@ public class SearchArtistActivityFragment extends Fragment {
     private static ArtistAdapter artistAdapter;
     private ArrayList<ArtistListData> artistList;
     ListView artistView;
+    private ProgressBar spinner;
 
     public SearchArtistActivityFragment() {
     }
@@ -65,6 +67,10 @@ public class SearchArtistActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_search_artist, container, false);
 
+        // Progress Bar -> initially no progress
+        spinner = (ProgressBar) rootView.findViewById(R.id.progressBar1);
+        spinner.setVisibility(View.GONE);
+
         // Listener for when the user is done typing the artist name in the edittext feild
         searchArtistEditText = (EditText) rootView.findViewById(R.id.searchArtistEditText);
         searchArtistEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -75,6 +81,9 @@ public class SearchArtistActivityFragment extends Fragment {
                     // hide virtual keyboard
                     InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(searchArtistEditText.getWindowToken(), 0);
+
+                    // show progress bar
+                    spinner.setVisibility(View.VISIBLE);
 
                     // search for artists
                     FetchArtistTask task = new FetchArtistTask();
@@ -166,8 +175,10 @@ public class SearchArtistActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(Boolean isDataSourceRefreshed) {
             if (isDataSourceRefreshed) {
+                spinner.setVisibility(View.GONE);
                 artistAdapter.notifyDataSetChanged();
             } else {
+                spinner.setVisibility(View.GONE);
                 Toast.makeText(getActivity(), "No results found for \"" + searchArtistEditText.getText() + "\". Please refine your search.", Toast.LENGTH_LONG).show();
             }
         }

@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +30,7 @@ public class TopTenTracksActivityFragment extends Fragment {
     private static TopTenTrackAdapter topTenTrackAdapter;
     private ArrayList<TrackListData> topTenTrackList;
     ListView artistView;
+    private ProgressBar spinner;
 
     public TopTenTracksActivityFragment() {
     }
@@ -48,9 +50,13 @@ public class TopTenTracksActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_top_ten_tracks, container, false);
 
+        // Progress Bar
+        spinner = (ProgressBar) rootView.findViewById(R.id.progressBar2);
+        spinner.setVisibility(View.VISIBLE);
+
         // bind view with adapter
         topTenTrackList = new ArrayList<>();
-        artistView = (ListView) rootView.findViewById(R.id.artistListView);
+        artistView = (ListView) rootView.findViewById(R.id.topTenTrackListView);
         bindView();
 
         // if savedInstanceState is null -> false
@@ -59,6 +65,7 @@ public class TopTenTracksActivityFragment extends Fragment {
 
         // no data to restore -> run Async
         if (!isRestoringState) {
+
             // get top ten tracks of the artist (async task)
             FetchTopTenTrack task = new FetchTopTenTrack();
             String[] artistInfo = getActivity().getIntent().getExtras().getStringArray(Intent.EXTRA_TEXT);
@@ -66,12 +73,12 @@ public class TopTenTracksActivityFragment extends Fragment {
             // pass artistId
             assert artistInfo != null;
             task.execute(artistInfo[0]);
+
         } else {
-            // get saved datasource if present
-            if (savedInstanceState != null) {
-                topTenTrackList = savedInstanceState.getParcelableArrayList("savedtopTenTrackList");
-                bindView();
-            }
+            // get saved datasource
+            topTenTrackList = savedInstanceState.getParcelableArrayList("savedtopTenTrackList");
+            bindView();
+            spinner.setVisibility(View.GONE);
         }
 
         // TODO implement listener to start PlayMusicActivity
@@ -134,8 +141,10 @@ public class TopTenTracksActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(Boolean isDataSourceRefreshed) {
             if (isDataSourceRefreshed) {
+                spinner.setVisibility(View.GONE);
                 topTenTrackAdapter.notifyDataSetChanged();
             } else {
+                spinner.setVisibility(View.GONE);
                 String[] artistInfo = getActivity().getIntent().getExtras().getStringArray(Intent.EXTRA_TEXT);
                 assert artistInfo != null;
                 Toast.makeText(getActivity(), "No tracks found for \"" + artistInfo[1] + "\"", Toast.LENGTH_LONG).show();

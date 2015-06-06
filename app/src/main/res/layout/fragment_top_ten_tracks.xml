@@ -8,8 +8,16 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.plusgaurav.spotifystreamer.TopTenTracksActivityFragment">
 
+    <ProgressBar
+        android:id="@+id/progressBar2"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+
     <ListView
-        android:id="@+id/artistListView"
+        android:id="@+id/topTenTrackListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="20dp" />
