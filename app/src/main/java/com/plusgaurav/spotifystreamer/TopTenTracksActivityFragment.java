@@ -89,7 +89,7 @@ public class TopTenTracksActivityFragment extends Fragment {
 
 
     public class FetchTopTenTrack extends AsyncTask<String, Void, Boolean> {
-        String temp;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
