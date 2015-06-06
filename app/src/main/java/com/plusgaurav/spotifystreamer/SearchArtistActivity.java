@@ -80,6 +80,8 @@ public class SearchArtistActivity extends AppCompatActivity implements SharedPre
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
+        // check premium or free user
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String userType = prefs.getString(getString(R.string.user_type_key),
                 getString(R.string.user_type_key));

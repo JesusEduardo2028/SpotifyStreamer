@@ -44,6 +44,7 @@ public class SettingsActivity extends ActionBarActivity {
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
 
+            // if preference is a list then find what was selected
             if (preference instanceof ListPreference) {
                 ListPreference listPreference = (ListPreference) preference;
                 int prefIndex = listPreference.findIndexOfValue(stringValue);

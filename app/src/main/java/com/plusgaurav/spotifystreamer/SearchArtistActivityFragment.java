@@ -142,6 +142,7 @@ public class SearchArtistActivityFragment extends Fragment {
 
             // search artist
             ArtistsPager artistsPager = spotify.searchArtists(artistName[0], options);
+
             // update data source
             artistList.clear();
             for (Artist artist : artistsPager.artists.items) {
@@ -159,8 +160,8 @@ public class SearchArtistActivityFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(Boolean isDataSourceRefereshed) {
-            if (isDataSourceRefereshed) {
+        protected void onPostExecute(Boolean isDataSourceRefreshed) {
+            if (isDataSourceRefreshed) {
                 artistAdapter.notifyDataSetChanged();
             } else {
                 Toast.makeText(getActivity(), "No results found for \"" + searchArtistEditText.getText() + "\"", Toast.LENGTH_LONG).show();

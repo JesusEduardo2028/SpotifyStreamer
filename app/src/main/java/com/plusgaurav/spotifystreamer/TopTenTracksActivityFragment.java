@@ -125,8 +125,8 @@ public class TopTenTracksActivityFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(Boolean isDataSourceRefereshed) {
-            if (isDataSourceRefereshed) {
+        protected void onPostExecute(Boolean isDataSourceRefreshed) {
+            if (isDataSourceRefreshed) {
                 topTenTrackAdapter.notifyDataSetChanged();
             } else {
                 String[] artistInfo = getActivity().getIntent().getExtras().getStringArray(Intent.EXTRA_TEXT);
