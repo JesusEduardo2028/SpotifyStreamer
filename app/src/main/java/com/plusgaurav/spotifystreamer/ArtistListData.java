@@ -6,12 +6,12 @@ import android.os.Parcelable;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.Image;
 
-public class newArtistListData implements Parcelable {
+public class ArtistListData implements Parcelable {
     String artistName;
     String artistId;
     String artistImage;
 
-    public newArtistListData(Artist artist) {
+    public ArtistListData(Artist artist) {
         artistName = artist.name;
         artistId = artist.id;
         for (Image image : artist.images) {
@@ -22,7 +22,7 @@ public class newArtistListData implements Parcelable {
         }
     }
 
-    public newArtistListData(Parcel in) {
+    public ArtistListData(Parcel in) {
         ReadFromParcel(in);
     }
 
@@ -44,13 +44,13 @@ public class newArtistListData implements Parcelable {
         return 0;
     }
 
-    public static final Parcelable.Creator<newArtistListData> CREATOR = new Parcelable.Creator<newArtistListData>() {
-        public newArtistListData createFromParcel(Parcel in) {
-            return new newArtistListData(in);
+    public static final Parcelable.Creator<ArtistListData> CREATOR = new Parcelable.Creator<ArtistListData>() {
+        public ArtistListData createFromParcel(Parcel in) {
+            return new ArtistListData(in);
         }
 
-        public newArtistListData[] newArray(int size) {
-            return new newArtistListData[size];
+        public ArtistListData[] newArray(int size) {
+            return new ArtistListData[size];
         }
     };
 }

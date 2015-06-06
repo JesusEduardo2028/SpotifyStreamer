@@ -33,7 +33,7 @@ public class SearchArtistActivityFragment extends Fragment {
 
     private EditText searchArtistEditText;
     private static ArtistAdapter artistAdapter;
-    private ArrayList<newArtistListData> artistList;
+    private ArrayList<ArtistListData> artistList;
     ListView artistView;
 
     public SearchArtistActivityFragment() {
@@ -146,7 +146,7 @@ public class SearchArtistActivityFragment extends Fragment {
                 // update data source
                 artistList.clear();
                 for (Artist artist : artistsPager.artists.items) {
-                    newArtistListData currentArtist = new newArtistListData(artist);
+                    ArtistListData currentArtist = new ArtistListData(artist);
                     artistList.add(currentArtist);
                 }
 
@@ -191,8 +191,8 @@ public class SearchArtistActivityFragment extends Fragment {
         }
 
         @Override
-        public newArtistListData getItem(int position) {
-            return (newArtistListData) artistList.get(position);
+        public ArtistListData getItem(int position) {
+            return (ArtistListData) artistList.get(position);
         }
 
         @Override
