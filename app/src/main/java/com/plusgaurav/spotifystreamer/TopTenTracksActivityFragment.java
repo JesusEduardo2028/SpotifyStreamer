@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -29,8 +30,9 @@ public class TopTenTracksActivityFragment extends Fragment {
 
     private static TopTenTrackAdapter topTenTrackAdapter;
     private ArrayList<TrackListData> topTenTrackList;
-    ListView artistView;
+    ListView topTenTrackView;
     private ProgressBar spinner;
+    String[] artistInfo;
 
     public TopTenTracksActivityFragment() {
     }
@@ -41,7 +43,7 @@ public class TopTenTracksActivityFragment extends Fragment {
 
         // save data source
         if (topTenTrackList != null) {
-            outState.putParcelableArrayList("savedtopTenTrackList", topTenTrackList);
+            outState.putParcelableArrayList("savedTopTenTrackList", topTenTrackList);
         }
     }
 
@@ -54,9 +56,12 @@ public class TopTenTracksActivityFragment extends Fragment {
         spinner = (ProgressBar) rootView.findViewById(R.id.progressBar2);
         spinner.setVisibility(View.VISIBLE);
 
+        // get intent info
+        String[] artistInfo = getActivity().getIntent().getExtras().getStringArray(Intent.EXTRA_TEXT);
+
         // bind view with adapter
         topTenTrackList = new ArrayList<>();
-        artistView = (ListView) rootView.findViewById(R.id.topTenTrackListView);
+        topTenTrackView = (ListView) rootView.findViewById(R.id.topTenTrackListView);
         bindView();
 
         // if savedInstanceState is null -> false
@@ -68,7 +73,6 @@ public class TopTenTracksActivityFragment extends Fragment {
 
             // get top ten tracks of the artist (async task)
             FetchTopTenTrack task = new FetchTopTenTrack();
-            String[] artistInfo = getActivity().getIntent().getExtras().getStringArray(Intent.EXTRA_TEXT);
 
             // pass artistId
             assert artistInfo != null;
@@ -76,12 +80,24 @@ public class TopTenTracksActivityFragment extends Fragment {
 
         } else {
             // get saved datasource
-            topTenTrackList = savedInstanceState.getParcelableArrayList("savedtopTenTrackList");
+            topTenTrackList = savedInstanceState.getParcelableArrayList("savedTopTenTrackList");
             bindView();
             spinner.setVisibility(View.GONE);
         }
 
         // TODO implement listener to start PlayMusicActivity
+        topTenTrackView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // start Player Activity
+                String trackName = topTenTrackList.get(position).trackName;
+                String trackAlbum = topTenTrackList.get(position).trackAlbum;
+                String trackImageLarge = topTenTrackList.get(position).trackImageLarge;
+                String trackDuration = topTenTrackList.get(position).trackDuration;
+                Intent intent = new Intent(getActivity(), PlayerActivity.class).putExtra(Intent.EXTRA_TEXT, new String[]{trackName, trackAlbum, trackImageLarge, trackDuration});
+                startActivity(intent);
+            }
+        });
 
         return rootView;
     }
@@ -92,7 +108,7 @@ public class TopTenTracksActivityFragment extends Fragment {
         topTenTrackAdapter = new TopTenTrackAdapter(getActivity(), topTenTrackList);
 
         // bind listview
-        artistView.setAdapter(topTenTrackAdapter);
+        topTenTrackView.setAdapter(topTenTrackAdapter);
     }
 
 

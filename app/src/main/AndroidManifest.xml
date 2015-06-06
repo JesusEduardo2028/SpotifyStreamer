@@ -34,6 +34,14 @@
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".SearchArtistActivity" />
+        <activity
+            android:name=".PlayerActivity"
+            android:label="@string/title_activity_player"
+            android:parentActivityName=".TopTenTracksActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.plusgaurav.spotifystreamer.TopTenTracksActivity" />
+        </activity>
     </application>
 
 </manifest>
