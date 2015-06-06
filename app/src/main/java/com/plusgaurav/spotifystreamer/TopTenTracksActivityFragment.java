@@ -34,17 +34,6 @@ public class TopTenTracksActivityFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        // get saved datasource if present
-        if (savedInstanceState != null) {
-            topTenTrackList = savedInstanceState.getParcelableArrayList("savedtopTenTrackList");
-            bindView();
-        }
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
@@ -64,16 +53,28 @@ public class TopTenTracksActivityFragment extends Fragment {
         artistView = (ListView) rootView.findViewById(R.id.artistListView);
         bindView();
 
-        // get top ten tracks of the artist (async task)
-        FetchTopTenTrack task = new FetchTopTenTrack();
-        String[] artistInfo = getActivity().getIntent().getExtras().getStringArray(Intent.EXTRA_TEXT);
+        // if savedInstanceState is null -> false
+        // else datasource has been parcelled and can be reused ->true
+        Boolean isRestoringState = savedInstanceState != null;
 
-        // pass artistId
-        assert artistInfo != null;
-        task.execute(artistInfo[0]);
+        // no data to restore -> run Async
+        if (!isRestoringState) {
+            // get top ten tracks of the artist (async task)
+            FetchTopTenTrack task = new FetchTopTenTrack();
+            String[] artistInfo = getActivity().getIntent().getExtras().getStringArray(Intent.EXTRA_TEXT);
+
+            // pass artistId
+            assert artistInfo != null;
+            task.execute(artistInfo[0]);
+        } else {
+            // get saved datasource if present
+            if (savedInstanceState != null) {
+                topTenTrackList = savedInstanceState.getParcelableArrayList("savedtopTenTrackList");
+                bindView();
+            }
+        }
 
         // TODO implement listener to start PlayMusicActivity
-
 
         return rootView;
     }
