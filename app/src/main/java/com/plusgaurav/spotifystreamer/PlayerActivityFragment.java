@@ -13,6 +13,9 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.spotify.sdk.android.player.Config;
+import com.spotify.sdk.android.player.Player;
+import com.spotify.sdk.android.player.Spotify;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -25,12 +28,13 @@ public class PlayerActivityFragment extends Fragment {
     View rootView;
     Boolean isPlaying;
     int position;
-    private static FFmpegMediaPlayer mediaPlayer;
+    private static FFmpegMediaPlayer freePlayer;
     private ProgressBar spinner;
     at.markushi.ui.CircleButton prevButton;
     at.markushi.ui.CircleButton playButton;
     at.markushi.ui.CircleButton nextButton;
     protected String trackUrl;
+    private static Player premiumPlayer;
 
     public PlayerActivityFragment() {
     }
@@ -42,8 +46,8 @@ public class PlayerActivityFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_player, container, false);
 
         // if song running -> cancel it
-        if (mediaPlayer != null) {
-            mediaPlayer.reset();
+        if (freePlayer != null) {
+            freePlayer.reset();
         }
 
         // Progress Bar
@@ -71,7 +75,9 @@ public class PlayerActivityFragment extends Fragment {
                 }
                 setUi(position);
                 playButton.setImageResource(R.drawable.ic_play);
-                mediaPlayer.reset();
+                if (freePlayer != null) {
+                    freePlayer.reset();
+                }
                 prepareMusic(position);
             }
         });
@@ -88,7 +94,9 @@ public class PlayerActivityFragment extends Fragment {
                 }
                 setUi(position);
                 playButton.setImageResource(R.drawable.ic_play);
-                mediaPlayer.reset();
+                if (freePlayer != null) {
+                    freePlayer.reset();
+                }
                 prepareMusic(position);
             }
         });
@@ -132,56 +140,96 @@ public class PlayerActivityFragment extends Fragment {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String userType = prefs.getString(getString(R.string.user_type_key),
                 getString(R.string.user_type_key));
+
         if (userType.equals("free")) {
+            freePlayer = new FFmpegMediaPlayer();
+            freePlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             trackUrl = TopTenTracksActivityFragment.topTenTrackList.get(position).trackPreviewUrl;
-        } else {
-            trackUrl = TopTenTracksActivityFragment.topTenTrackList.get(position).trackUrl;
-        }
-
-        mediaPlayer = new FFmpegMediaPlayer();
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
-        try {
-            mediaPlayer.setDataSource(trackUrl);
-            mediaPlayer.prepareAsync();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // play button
-        playButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.playButton);
-        isPlaying = false;
-
-        // grey out until prepare
-        playButton.setClickable(false);
-        playButton.setImageResource(R.drawable.ic_stop);
-
-        mediaPlayer.setOnPreparedListener(new FFmpegMediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(FFmpegMediaPlayer mp) {
-                spinner.setVisibility(View.GONE);
-
-                // restore button
-                playButton.setClickable(true);
-
-                mediaPlayer.start();
-                playButton.setImageResource(R.drawable.ic_pause);
-                isPlaying = true;
-                playButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (!isPlaying) {
-                            mediaPlayer.start();
-                            playButton.setImageResource(R.drawable.ic_pause);
-                            isPlaying = true;
-                        } else {
-                            mediaPlayer.pause();
-                            isPlaying = false;
-                            playButton.setImageResource(R.drawable.ic_play);
-                        }
-                    }
-                });
+            try {
+                freePlayer.setDataSource(trackUrl);
+                freePlayer.prepareAsync();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        });
+
+            // play button
+            playButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.playButton);
+            isPlaying = false;
+
+            // grey out until prepare
+            playButton.setClickable(false);
+            playButton.setImageResource(R.drawable.ic_stop);
+
+            freePlayer.setOnPreparedListener(new FFmpegMediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(FFmpegMediaPlayer mp) {
+                    spinner.setVisibility(View.GONE);
+
+                    // restore button
+                    playButton.setClickable(true);
+
+                    freePlayer.start();
+                    playButton.setImageResource(R.drawable.ic_pause);
+                    isPlaying = true;
+                    playButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (!isPlaying) {
+                                freePlayer.start();
+                                playButton.setImageResource(R.drawable.ic_pause);
+                                isPlaying = true;
+                            } else {
+                                freePlayer.pause();
+                                isPlaying = false;
+                                playButton.setImageResource(R.drawable.ic_play);
+                            }
+                        }
+                    });
+                }
+            });
+        } else {
+            // play button
+            playButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.playButton);
+            isPlaying = false;
+
+            // grey out until prepare
+            playButton.setClickable(false);
+            playButton.setImageResource(R.drawable.ic_stop);
+
+            trackUrl = TopTenTracksActivityFragment.topTenTrackList.get(position).trackUrl;
+            Config playerConfig = new Config(getActivity(), SearchArtistActivity.getAccessToken(), SearchArtistActivity.CLIENT_ID);
+            premiumPlayer = Spotify.getPlayer(playerConfig, getActivity(), new Player.InitializationObserver() {
+                @Override
+                public void onInitialized(Player player) {
+                    spinner.setVisibility(View.GONE);
+
+                    // restore button
+                    playButton.setClickable(true);
+
+                    premiumPlayer.play(trackUrl);
+                    playButton.setImageResource(R.drawable.ic_pause);
+                    isPlaying = true;
+                    playButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (!isPlaying) {
+                                premiumPlayer.play(trackUrl);
+                                playButton.setImageResource(R.drawable.ic_pause);
+                                isPlaying = true;
+                            } else {
+                                premiumPlayer.pause();
+                                isPlaying = false;
+                                playButton.setImageResource(R.drawable.ic_play);
+                            }
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(Throwable throwable) {
+
+                }
+            });
+        }
     }
 }

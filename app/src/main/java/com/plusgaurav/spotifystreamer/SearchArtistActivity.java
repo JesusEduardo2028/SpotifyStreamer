@@ -15,12 +15,12 @@ import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 public class SearchArtistActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static final String CLIENT_ID = "33bbc039194a4921a55a18dedc5bb329";
+    protected static final String CLIENT_ID = "33bbc039194a4921a55a18dedc5bb329";
     private static final String REDIRECT_URI = "spotifystreamer://callback";
     private static String accessToken;
     private static final int REQUEST_CODE = 1337;
 
-    public static String getAccessToken() {
+    protected static String getAccessToken() {
         return accessToken;
     }
 
@@ -31,14 +31,27 @@ public class SearchArtistActivity extends AppCompatActivity implements SharedPre
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search_artist);
+
+        // register prefernce change listener
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         pref.registerOnSharedPreferenceChangeListener(this);
-        AuthenticationRequest.Builder builder =
-                new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
-        builder.setScopes(new String[]{"user-read-private", "streaming"});
-        AuthenticationRequest request = builder.build();
-        AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+
+        // check premium or free user
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String userType = prefs.getString(getString(R.string.user_type_key),
+                getString(R.string.user_type_key));
+        if (userType.equals("free")) {
+            AuthenticationClient.logout(getApplicationContext());
+        } else {
+            AuthenticationRequest.Builder builder =
+                    new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
+            builder.setScopes(new String[]{"user-read-private", "streaming"});
+            AuthenticationRequest request = builder.build();
+
+            AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+        }
+
+        setContentView(R.layout.activity_search_artist);
     }
 
 
@@ -55,6 +68,7 @@ public class SearchArtistActivity extends AppCompatActivity implements SharedPre
                 case TOKEN:
                     Toast.makeText(SearchArtistActivity.this, "Logged in!", Toast.LENGTH_SHORT).show();
                     setAccessToken(response.getAccessToken());
+
                     break;
 
                 case ERROR:
