@@ -36,6 +36,11 @@ public class PlayerActivityFragment extends Fragment {
 
         rootView = inflater.inflate(R.layout.fragment_player, container, false);
 
+        // if song running -> cancel it
+        if (mediaPlayer != null) {
+            mediaPlayer.reset();
+        }
+
         // Progress Bar
         spinner = (ProgressBar) rootView.findViewById(R.id.progressBar3);
         spinner.setVisibility(View.VISIBLE);
@@ -88,6 +93,13 @@ public class PlayerActivityFragment extends Fragment {
 
     private void setUi(int position) {
 
+        // update title
+        // set title in the actionbar
+        android.support.v7.app.ActionBar actionBar = PlayerActivity.actionBar;
+        assert actionBar != null;
+        actionBar.setTitle(TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
+        actionBar.setSubtitle(TopTenTracksActivityFragment.topTenTrackList.get(position).trackAlbum);
+
         // artist name
         TextView artistNameView = (TextView) rootView.findViewById(R.id.artistName);
         artistNameView.setText(TopTenTracksActivityFragment.topTenTrackList.get(position).trackArtist);
@@ -118,13 +130,23 @@ public class PlayerActivityFragment extends Fragment {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         // play button
         playButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.playButton);
         isPlaying = false;
+
+        // grey out until prepare
+        playButton.setClickable(false);
+        playButton.setImageResource(R.drawable.ic_stop);
+
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
                 spinner.setVisibility(View.GONE);
+
+                // restore button
+                playButton.setClickable(true);
+
                 mediaPlayer.start();
                 playButton.setImageResource(R.drawable.ic_pause);
                 isPlaying = true;
@@ -140,7 +162,6 @@ public class PlayerActivityFragment extends Fragment {
                             isPlaying = false;
                             playButton.setImageResource(R.drawable.ic_play);
                         }
-
                     }
                 });
             }
