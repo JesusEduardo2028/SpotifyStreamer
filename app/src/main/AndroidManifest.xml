@@ -39,6 +39,7 @@
         <activity
             android:name=".PlayerActivity"
             android:label="@string/title_activity_player"
+            android:launchMode="singleTop"
             android:parentActivityName=".TopTenTracksActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

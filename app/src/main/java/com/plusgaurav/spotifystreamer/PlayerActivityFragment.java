@@ -16,12 +16,14 @@ import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 
+import jp.wasabeef.picasso.transformations.BlurTransformation;
+
 public class PlayerActivityFragment extends Fragment {
 
     View rootView;
     Boolean isPlaying;
     int position;
-    MediaPlayer mediaPlayer;
+    private static MediaPlayer mediaPlayer;
     private ProgressBar spinner;
     at.markushi.ui.CircleButton prevButton;
     at.markushi.ui.CircleButton playButton;
@@ -71,6 +73,7 @@ public class PlayerActivityFragment extends Fragment {
             }
         });
 
+        // next button
         nextButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.nextButton);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,12 +96,18 @@ public class PlayerActivityFragment extends Fragment {
 
     private void setUi(int position) {
 
-        // update title
         // set title in the actionbar
         android.support.v7.app.ActionBar actionBar = PlayerActivity.actionBar;
         assert actionBar != null;
         actionBar.setTitle(TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
         actionBar.setSubtitle(TopTenTracksActivityFragment.topTenTrackList.get(position).trackAlbum);
+
+        // update background image and album art
+        ImageView backgroundImageView = (ImageView) rootView.findViewById(R.id.backgroundImage);
+        String url = TopTenTracksActivityFragment.topTenTrackList.get(position).trackImageLarge;
+        Picasso.with(rootView.getContext()).load(url).transform(new BlurTransformation(rootView.getContext(),25)).into(backgroundImageView);
+        ImageView trackImageView = (ImageView) rootView.findViewById(R.id.trackImage);
+        Picasso.with(rootView.getContext()).load(url).placeholder(R.drawable.ic_album).error(R.drawable.ic_album).into(trackImageView);
 
         // artist name
         TextView artistNameView = (TextView) rootView.findViewById(R.id.artistName);
@@ -107,11 +116,6 @@ public class PlayerActivityFragment extends Fragment {
         // album name
         TextView albumNameView = (TextView) rootView.findViewById(R.id.albumName);
         albumNameView.setText(TopTenTracksActivityFragment.topTenTrackList.get(position).trackAlbum);
-
-        // album art
-        ImageView trackImageView = (ImageView) rootView.findViewById(R.id.trackImage);
-        String url = TopTenTracksActivityFragment.topTenTrackList.get(position).trackImageLarge;
-        Picasso.with(rootView.getContext()).load(url).placeholder(R.drawable.ic_album).error(R.drawable.ic_album).into(trackImageView);
 
         // track Name
         TextView trackNameView = (TextView) rootView.findViewById(R.id.trackName);
@@ -166,6 +170,5 @@ public class PlayerActivityFragment extends Fragment {
                 });
             }
         });
-
     }
 }
