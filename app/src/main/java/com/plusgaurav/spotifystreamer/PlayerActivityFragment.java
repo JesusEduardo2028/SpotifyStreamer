@@ -11,9 +11,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-/**
- * A placeholder fragment containing a simple view.
- */
 public class PlayerActivityFragment extends Fragment {
 
     public PlayerActivityFragment() {
@@ -29,6 +26,8 @@ public class PlayerActivityFragment extends Fragment {
         String[] trackInfo = getActivity().getIntent().getStringArrayExtra(Intent.EXTRA_TEXT);
 
         // get artist name
+        TextView artistNameView = (TextView) rootView.findViewById(R.id.artistName);
+        artistNameView.setText(trackInfo[4]);
 
         // album name
         TextView albumNameView = (TextView) rootView.findViewById(R.id.albumName);
@@ -37,7 +36,7 @@ public class PlayerActivityFragment extends Fragment {
         // album art
         ImageView trackImageView = (ImageView) rootView.findViewById(R.id.trackImage);
         String url = trackInfo[2];
-        Picasso.with(rootView.getContext()).load(url).placeholder(R.drawable.ic_play_circle_filled_black_36dp).error(R.drawable.ic_play_circle_filled_black_36dp).into(trackImageView);
+        Picasso.with(rootView.getContext()).load(url).placeholder(R.drawable.ic_queue_music_black_48dp).error(R.drawable.ic_queue_music_black_48dp).into(trackImageView);
 
         return rootView;
     }

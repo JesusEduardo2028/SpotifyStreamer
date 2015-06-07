@@ -89,7 +89,8 @@ public class TopTenTracksActivityFragment extends Fragment {
                 String trackAlbum = topTenTrackList.get(position).trackAlbum;
                 String trackImageLarge = topTenTrackList.get(position).trackImageLarge;
                 String trackDuration = topTenTrackList.get(position).trackDuration;
-                Intent intent = new Intent(getActivity(), PlayerActivity.class).putExtra(Intent.EXTRA_TEXT, new String[]{trackName, trackAlbum, trackImageLarge, trackDuration});
+                String artistName = artistInfo[1];
+                Intent intent = new Intent(getActivity(), PlayerActivity.class).putExtra(Intent.EXTRA_TEXT, new String[]{trackName, trackAlbum, trackImageLarge, trackDuration, artistName});
                 startActivity(intent);
             }
         });
