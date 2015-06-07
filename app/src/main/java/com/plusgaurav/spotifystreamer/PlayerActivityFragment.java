@@ -25,8 +25,8 @@ public class PlayerActivityFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_player, container, false);
 
-        Intent intent = getActivity().getIntent();
-        String[] trackInfo = intent.getStringArrayExtra(Intent.EXTRA_TEXT);
+        // get trackInfo
+        String[] trackInfo = getActivity().getIntent().getStringArrayExtra(Intent.EXTRA_TEXT);
 
         // get artist name
 
