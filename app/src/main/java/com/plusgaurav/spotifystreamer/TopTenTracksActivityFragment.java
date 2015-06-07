@@ -29,7 +29,7 @@ import kaaes.spotify.webapi.android.models.Tracks;
 public class TopTenTracksActivityFragment extends Fragment {
 
     private static TopTenTrackAdapter topTenTrackAdapter;
-    private ArrayList<TrackListData> topTenTrackList;
+    public static ArrayList<TrackListData> topTenTrackList;
     ListView topTenTrackView;
     private ProgressBar spinner;
     String[] artistInfo = TopTenTracksActivity.artistInfo;
@@ -91,7 +91,8 @@ public class TopTenTracksActivityFragment extends Fragment {
                 String trackDuration = topTenTrackList.get(position).trackDuration;
                 String artistName = artistInfo[1];
                 String tackPreviewUrl = topTenTrackList.get(position).trackPreviewUrl;
-                Intent intent = new Intent(getActivity(), PlayerActivity.class).putExtra(Intent.EXTRA_TEXT, new String[]{trackName, trackAlbum, trackImageLarge, trackDuration, artistName, tackPreviewUrl});
+                String trackPosition = String.valueOf(position);
+                Intent intent = new Intent(getActivity(), PlayerActivity.class).putExtra(Intent.EXTRA_TEXT, new String[]{trackName, trackAlbum, trackImageLarge, trackDuration, artistName, tackPreviewUrl, trackPosition});
                 startActivity(intent);
             }
         });
@@ -135,6 +136,7 @@ public class TopTenTracksActivityFragment extends Fragment {
                 topTenTrackList.clear();
                 for (Track track : topTracks.tracks) {
                     TrackListData currentTrack = new TrackListData(track);
+                    currentTrack.trackArtist = artistInfo[1];
                     topTenTrackList.add(currentTrack);
                 }
 

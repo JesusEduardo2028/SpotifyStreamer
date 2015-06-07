@@ -18,10 +18,14 @@ import java.io.IOException;
 
 public class PlayerActivityFragment extends Fragment {
 
+    View rootView;
     Boolean isPlaying;
+    int position;
     MediaPlayer mediaPlayer;
-    at.markushi.ui.CircleButton playButton;
     private ProgressBar spinner;
+    at.markushi.ui.CircleButton prevButton;
+    at.markushi.ui.CircleButton playButton;
+    at.markushi.ui.CircleButton nextButton;
 
     public PlayerActivityFragment() {
     }
@@ -30,36 +34,74 @@ public class PlayerActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.fragment_player, container, false);
+        rootView = inflater.inflate(R.layout.fragment_player, container, false);
 
         // Progress Bar
         spinner = (ProgressBar) rootView.findViewById(R.id.progressBar3);
         spinner.setVisibility(View.VISIBLE);
 
-        // get trackInfo
-        String[] trackInfo = getActivity().getIntent().getStringArrayExtra(Intent.EXTRA_TEXT);
+        // get position
+        position = Integer.parseInt(getActivity().getIntent().getStringArrayExtra(Intent.EXTRA_TEXT)[6]);
+
+        // setup ui
+        setUi(position);
+
+        // prepare music
+        prepareMusic(position);
+
+        // prev button
+        prevButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.prevButton);
+        prevButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                position = position - 1;
+                setUi(position);
+                playButton.setImageResource(R.drawable.ic_play);
+                mediaPlayer.reset();
+                prepareMusic(position);
+            }
+        });
+
+        nextButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.nextButton);
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                position = position + 1;
+                setUi(position);
+                playButton.setImageResource(R.drawable.ic_play);
+                mediaPlayer.reset();
+                prepareMusic(position);
+            }
+        });
+
+        return rootView;
+    }
+
+
+    private void setUi(int position) {
 
         // artist name
         TextView artistNameView = (TextView) rootView.findViewById(R.id.artistName);
-        artistNameView.setText(trackInfo[4]);
+        artistNameView.setText(TopTenTracksActivityFragment.topTenTrackList.get(position).trackArtist);
 
         // album name
         TextView albumNameView = (TextView) rootView.findViewById(R.id.albumName);
-        albumNameView.setText(trackInfo[1]);
+        albumNameView.setText(TopTenTracksActivityFragment.topTenTrackList.get(position).trackAlbum);
 
         // album art
         ImageView trackImageView = (ImageView) rootView.findViewById(R.id.trackImage);
-        String url = trackInfo[2];
+        String url = TopTenTracksActivityFragment.topTenTrackList.get(position).trackImageLarge;
         Picasso.with(rootView.getContext()).load(url).placeholder(R.drawable.ic_album).error(R.drawable.ic_album).into(trackImageView);
 
         // track Name
         TextView trackNameView = (TextView) rootView.findViewById(R.id.trackName);
-        trackNameView.setText(trackInfo[0]);
+        trackNameView.setText(TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
 
-        // Play music
-        isPlaying = false;
-        playButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.playButton);
-        final String previewUrl = trackInfo[5];
+    }
+
+    private void prepareMusic(int position) {
+
+        final String previewUrl = TopTenTracksActivityFragment.topTenTrackList.get(position).trackPreviewUrl;
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
@@ -68,6 +110,9 @@ public class PlayerActivityFragment extends Fragment {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        // play button
+        playButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.playButton);
+        isPlaying = false;
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
@@ -90,7 +135,5 @@ public class PlayerActivityFragment extends Fragment {
             }
         });
 
-
-        return rootView;
     }
 }
