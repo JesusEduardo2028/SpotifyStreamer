@@ -41,7 +41,7 @@ public class PlayerActivityFragment extends Fragment {
         spinner.setVisibility(View.VISIBLE);
 
         // get position
-        position = Integer.parseInt(getActivity().getIntent().getStringArrayExtra(Intent.EXTRA_TEXT)[6]);
+        position = Integer.parseInt(getActivity().getIntent().getStringExtra(Intent.EXTRA_TEXT));
 
         // setup ui
         setUi(position);
@@ -54,7 +54,11 @@ public class PlayerActivityFragment extends Fragment {
         prevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                spinner.setVisibility(View.VISIBLE);
                 position = position - 1;
+                if (position < 0) {
+                    position = 0;
+                }
                 setUi(position);
                 playButton.setImageResource(R.drawable.ic_play);
                 mediaPlayer.reset();
@@ -66,7 +70,11 @@ public class PlayerActivityFragment extends Fragment {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                spinner.setVisibility(View.VISIBLE);
                 position = position + 1;
+                if (position > 9) {
+                    position = 0;
+                }
                 setUi(position);
                 playButton.setImageResource(R.drawable.ic_play);
                 mediaPlayer.reset();
@@ -116,7 +124,10 @@ public class PlayerActivityFragment extends Fragment {
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
-                //spinner.setVisibility(View.GONE);
+                spinner.setVisibility(View.GONE);
+                mediaPlayer.start();
+                playButton.setImageResource(R.drawable.ic_pause);
+                isPlaying = true;
                 playButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

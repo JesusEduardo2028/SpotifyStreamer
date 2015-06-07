@@ -85,14 +85,8 @@ public class TopTenTracksActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // start Player Activity
-                String trackName = topTenTrackList.get(position).trackName;
-                String trackAlbum = topTenTrackList.get(position).trackAlbum;
-                String trackImageLarge = topTenTrackList.get(position).trackImageLarge;
-                String trackDuration = topTenTrackList.get(position).trackDuration;
-                String artistName = artistInfo[1];
-                String tackPreviewUrl = topTenTrackList.get(position).trackPreviewUrl;
                 String trackPosition = String.valueOf(position);
-                Intent intent = new Intent(getActivity(), PlayerActivity.class).putExtra(Intent.EXTRA_TEXT, new String[]{trackName, trackAlbum, trackImageLarge, trackDuration, artistName, tackPreviewUrl, trackPosition});
+                Intent intent = new Intent(getActivity(), PlayerActivity.class).putExtra(Intent.EXTRA_TEXT, trackPosition);
                 startActivity(intent);
             }
         });

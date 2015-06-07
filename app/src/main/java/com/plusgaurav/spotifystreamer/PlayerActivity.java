@@ -11,13 +11,12 @@ public class PlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
-        Intent intent = getIntent();
-        String[] trackInfo = intent.getStringArrayExtra(Intent.EXTRA_TEXT);
+        int position = Integer.parseInt(getIntent().getStringExtra(Intent.EXTRA_TEXT));
 
         // set title in the actionbar
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         assert actionBar != null;
-        actionBar.setTitle(trackInfo[0]);
-        actionBar.setSubtitle(trackInfo[1]);
+        actionBar.setTitle(TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
+        actionBar.setSubtitle(TopTenTracksActivityFragment.topTenTrackList.get(position).trackAlbum);
     }
 }
