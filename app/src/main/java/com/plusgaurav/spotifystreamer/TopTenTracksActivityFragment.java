@@ -90,7 +90,8 @@ public class TopTenTracksActivityFragment extends Fragment {
                 String trackImageLarge = topTenTrackList.get(position).trackImageLarge;
                 String trackDuration = topTenTrackList.get(position).trackDuration;
                 String artistName = artistInfo[1];
-                Intent intent = new Intent(getActivity(), PlayerActivity.class).putExtra(Intent.EXTRA_TEXT, new String[]{trackName, trackAlbum, trackImageLarge, trackDuration, artistName});
+                String tackPreviewUrl = topTenTrackList.get(position).trackPreviewUrl;
+                Intent intent = new Intent(getActivity(), PlayerActivity.class).putExtra(Intent.EXTRA_TEXT, new String[]{trackName, trackAlbum, trackImageLarge, trackDuration, artistName, tackPreviewUrl});
                 startActivity(intent);
             }
         });
@@ -200,7 +201,7 @@ public class TopTenTracksActivityFragment extends Fragment {
             // put track image
             de.hdodenhof.circleimageview.CircleImageView trackImageView = (de.hdodenhof.circleimageview.CircleImageView) row.findViewById(R.id.trackImage);
             String url = getItem(position).trackImageSmall;
-            Picasso.with(row.getContext()).load(url).placeholder(R.drawable.ic_play_circle_filled_black_36dp).error(R.drawable.ic_play_circle_filled_black_36dp).into(trackImageView);
+            Picasso.with(row.getContext()).load(url).placeholder(R.drawable.ic_play).error(R.drawable.ic_play).into(trackImageView);
 
             // put track name
             TextView trackName = (TextView) row.findViewById(R.id.trackName);

@@ -219,7 +219,7 @@ public class SearchArtistActivityFragment extends Fragment {
             // put artist image
             de.hdodenhof.circleimageview.CircleImageView artistImageView = (de.hdodenhof.circleimageview.CircleImageView) row.findViewById(R.id.artistImage);
             String url = getItem(position).artistImage;
-            Picasso.with(row.getContext()).load(url).placeholder(R.drawable.ic_play_circle_filled_black_36dp).error(R.drawable.ic_play_circle_filled_black_36dp).into(artistImageView);
+            Picasso.with(row.getContext()).load(url).placeholder(R.drawable.ic_play).error(R.drawable.ic_play).into(artistImageView);
 
             // put artist name
             TextView artistName = (TextView) row.findViewById(R.id.artistName);

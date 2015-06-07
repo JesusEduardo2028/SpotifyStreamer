@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,17 +9,25 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.plusgaurav.spotifystreamer.PlayerActivityFragment">
 
+    <ProgressBar
+        android:id="@+id/progressBar3"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:weightSum="1">
 
         <TextView
             android:id="@+id/artistName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="5dp"
             android:textSize="15dp" />
 
         <TextView
@@ -31,11 +40,59 @@
 
         <ImageView
             android:id="@+id/trackImage"
-            android:layout_width="350dp"
-            android:layout_height="350dp"
+            android:layout_width="375dp"
+            android:layout_height="375dp"
             android:layout_gravity="center"
             android:layout_marginTop="5dp"
-            android:src="@drawable/ic_play_circle_filled_black_36dp" />
+            android:src="@drawable/ic_play" />
+
+        <TextView
+            android:id="@+id/trackName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:textSize="20dp" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <at.markushi.ui.CircleButton
+                android:id="@+id/prevButton"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="15dp"
+                android:src="@drawable/ic_prev"
+                app:cb_color="#1B5E20"
+                app:cb_pressedRingWidth="8dip" />
+
+            <at.markushi.ui.CircleButton
+                android:id="@+id/playButton"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="45dp"
+                android:layout_marginRight="45dp"
+                android:layout_marginTop="15dp"
+                android:src="@drawable/ic_play"
+                app:cb_color="#1B5E20"
+                app:cb_pressedRingWidth="8dip" />
+
+            <at.markushi.ui.CircleButton
+                android:id="@+id/nextButton"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="15dp"
+                android:src="@drawable/ic_next"
+                app:cb_color="#1B5E20"
+                app:cb_pressedRingWidth="8dip" />
+        </LinearLayout>
 
     </LinearLayout>
 
