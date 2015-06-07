@@ -1,9 +1,11 @@
 package com.plusgaurav.spotifystreamer;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +30,7 @@ public class PlayerActivityFragment extends Fragment {
     at.markushi.ui.CircleButton prevButton;
     at.markushi.ui.CircleButton playButton;
     at.markushi.ui.CircleButton nextButton;
+    protected String trackUrl;
 
     public PlayerActivityFragment() {
     }
@@ -105,7 +108,7 @@ public class PlayerActivityFragment extends Fragment {
         // update background image and album art
         ImageView backgroundImageView = (ImageView) rootView.findViewById(R.id.backgroundImage);
         String url = TopTenTracksActivityFragment.topTenTrackList.get(position).trackImageLarge;
-        Picasso.with(rootView.getContext()).load(url).transform(new BlurTransformation(rootView.getContext(),25)).into(backgroundImageView);
+        Picasso.with(rootView.getContext()).load(url).transform(new BlurTransformation(rootView.getContext(), 25)).into(backgroundImageView);
         ImageView trackImageView = (ImageView) rootView.findViewById(R.id.trackImage);
         Picasso.with(rootView.getContext()).load(url).placeholder(R.drawable.ic_album).error(R.drawable.ic_album).into(trackImageView);
 
@@ -125,11 +128,21 @@ public class PlayerActivityFragment extends Fragment {
 
     private void prepareMusic(int position) {
 
-        final String previewUrl = TopTenTracksActivityFragment.topTenTrackList.get(position).trackPreviewUrl;
+        // check for free or premium user
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String userType = prefs.getString(getString(R.string.user_type_key),
+                getString(R.string.user_type_key));
+        if (userType.equals("free")) {
+            trackUrl = TopTenTracksActivityFragment.topTenTrackList.get(position).trackPreviewUrl;
+        } else {
+            trackUrl = TopTenTracksActivityFragment.topTenTrackList.get(position).trackUrl;
+        }
+
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
         try {
-            mediaPlayer.setDataSource(previewUrl);
+            mediaPlayer.setDataSource(trackUrl);
             mediaPlayer.prepareAsync();
         } catch (IOException e) {
             e.printStackTrace();

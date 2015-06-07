@@ -15,6 +15,7 @@ public class TrackListData implements Parcelable {
     String trackPreviewUrl;
     String trackDuration;
     String trackArtist;
+    String trackUrl;
 
     public TrackListData(Track track) {
         this.trackName = track.name;
@@ -28,7 +29,8 @@ public class TrackListData implements Parcelable {
             }
             this.trackPreviewUrl = track.preview_url;
         }
-        trackDuration = String.valueOf(track.duration_ms);
+        this.trackDuration = String.valueOf(track.duration_ms);
+        this.trackUrl = track.uri;
     }
 
     public TrackListData(Parcel in) {
@@ -43,6 +45,7 @@ public class TrackListData implements Parcelable {
         trackPreviewUrl = in.readString();
         trackDuration = in.readString();
         trackArtist = in.readString();
+        trackUrl = in.readString();
     }
 
     @Override
@@ -54,6 +57,7 @@ public class TrackListData implements Parcelable {
         out.writeString(trackPreviewUrl);
         out.writeString(trackDuration);
         out.writeString(trackArtist);
+        out.writeString(trackUrl);
     }
 
     @Override
