@@ -34,6 +34,11 @@ public class SearchArtistActivity extends AppCompatActivity implements SharedPre
         setContentView(R.layout.activity_search_artist);
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         pref.registerOnSharedPreferenceChangeListener(this);
+        AuthenticationRequest.Builder builder =
+                new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
+        builder.setScopes(new String[]{"user-read-private", "streaming"});
+        AuthenticationRequest request = builder.build();
+        AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
     }
 
 

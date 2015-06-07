@@ -3,7 +3,6 @@ package com.plusgaurav.spotifystreamer;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -19,13 +18,14 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 
 import jp.wasabeef.picasso.transformations.BlurTransformation;
+import wseemann.media.FFmpegMediaPlayer;
 
 public class PlayerActivityFragment extends Fragment {
 
     View rootView;
     Boolean isPlaying;
     int position;
-    private static MediaPlayer mediaPlayer;
+    private static FFmpegMediaPlayer mediaPlayer;
     private ProgressBar spinner;
     at.markushi.ui.CircleButton prevButton;
     at.markushi.ui.CircleButton playButton;
@@ -138,7 +138,7 @@ public class PlayerActivityFragment extends Fragment {
             trackUrl = TopTenTracksActivityFragment.topTenTrackList.get(position).trackUrl;
         }
 
-        mediaPlayer = new MediaPlayer();
+        mediaPlayer = new FFmpegMediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
         try {
@@ -156,9 +156,9 @@ public class PlayerActivityFragment extends Fragment {
         playButton.setClickable(false);
         playButton.setImageResource(R.drawable.ic_stop);
 
-        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+        mediaPlayer.setOnPreparedListener(new FFmpegMediaPlayer.OnPreparedListener() {
             @Override
-            public void onPrepared(MediaPlayer mp) {
+            public void onPrepared(FFmpegMediaPlayer mp) {
                 spinner.setVisibility(View.GONE);
 
                 // restore button
