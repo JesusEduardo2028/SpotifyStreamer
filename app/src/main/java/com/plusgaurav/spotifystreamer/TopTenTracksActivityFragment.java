@@ -32,7 +32,7 @@ public class TopTenTracksActivityFragment extends Fragment {
     private ArrayList<TrackListData> topTenTrackList;
     ListView topTenTrackView;
     private ProgressBar spinner;
-    String[] artistInfo;
+    String[] artistInfo = TopTenTracksActivity.artistInfo;
 
     public TopTenTracksActivityFragment() {
     }
@@ -56,9 +56,6 @@ public class TopTenTracksActivityFragment extends Fragment {
         spinner = (ProgressBar) rootView.findViewById(R.id.progressBar2);
         spinner.setVisibility(View.VISIBLE);
 
-        // get intent info
-        String[] artistInfo = getActivity().getIntent().getExtras().getStringArray(Intent.EXTRA_TEXT);
-
         // bind view with adapter
         topTenTrackList = new ArrayList<>();
         topTenTrackView = (ListView) rootView.findViewById(R.id.topTenTrackListView);
@@ -73,8 +70,6 @@ public class TopTenTracksActivityFragment extends Fragment {
 
             // get top ten tracks of the artist (async task)
             FetchTopTenTrack task = new FetchTopTenTrack();
-
-            // pass artistId
             assert artistInfo != null;
             task.execute(artistInfo[0]);
 

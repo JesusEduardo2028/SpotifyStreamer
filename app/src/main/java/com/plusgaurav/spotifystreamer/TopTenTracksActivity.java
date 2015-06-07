@@ -6,14 +6,16 @@ import android.support.v7.app.AppCompatActivity;
 
 public class TopTenTracksActivity extends AppCompatActivity {
 
+    public static String[] artistInfo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_top_ten_tracks);
 
-        // get artistinfo
-        Intent intent = getIntent();
-        String[] artistInfo = intent.getStringArrayExtra(Intent.EXTRA_TEXT);
+        // get Intent
+        artistInfo = getIntent().getExtras().getStringArray(Intent.EXTRA_TEXT);
+
+        setContentView(R.layout.activity_top_ten_tracks);
 
         // set subtitle in the actionbar
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();

@@ -25,7 +25,8 @@
         <activity
             android:name=".TopTenTracksActivity"
             android:label="@string/title_activity_top_ten_tracks"
-            android:parentActivityName=".SearchArtistActivity" >
+            android:parentActivityName=".SearchArtistActivity"
+            android:launchMode="singleInstance">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.plusgaurav.spotifystreamer.SearchArtistActivity" />
