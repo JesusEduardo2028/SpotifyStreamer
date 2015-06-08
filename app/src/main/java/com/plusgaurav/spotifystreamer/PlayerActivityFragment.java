@@ -28,13 +28,13 @@ public class PlayerActivityFragment extends Fragment {
     View rootView;
     Boolean isPlaying;
     int position;
-    private static FFmpegMediaPlayer freePlayer;
+    protected static FFmpegMediaPlayer freePlayer;
     private ProgressBar spinner;
     at.markushi.ui.CircleButton prevButton;
     at.markushi.ui.CircleButton playButton;
     at.markushi.ui.CircleButton nextButton;
     protected String trackUrl;
-    private static Player premiumPlayer;
+    protected static Player premiumPlayer;
 
     public PlayerActivityFragment() {
     }

@@ -106,12 +106,16 @@ public class SearchArtistActivity extends AppCompatActivity implements SharedPre
                 getString(R.string.user_type_key));
         if (userType.equals("free")) {
             AuthenticationClient.logout(getApplicationContext());
+            PlayerActivityFragment.premiumPlayer.pause();
             Toast.makeText(this, "Logged out!", Toast.LENGTH_LONG).show();
         } else {
             AuthenticationRequest.Builder builder =
                     new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
             builder.setScopes(new String[]{"user-read-private", "streaming"});
             AuthenticationRequest request = builder.build();
+            if (PlayerActivityFragment.freePlayer != null) {
+                PlayerActivityFragment.freePlayer.reset();
+            }
 
             AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
         }

@@ -57,7 +57,6 @@ public class SettingsActivity extends ActionBarActivity {
             return true;
         }
 
-
     }
 
 }
