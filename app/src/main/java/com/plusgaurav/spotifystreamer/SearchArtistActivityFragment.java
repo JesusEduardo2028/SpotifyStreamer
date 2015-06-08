@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.support.v4.app.Fragment;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -37,8 +40,36 @@ public class SearchArtistActivityFragment extends Fragment {
     private ArrayList<ArtistListData> artistList;
     ListView artistView;
     private ProgressBar spinner;
+    private SpeechRecognizer mSpeechRecognizer;
+    private Intent mSpeechRecognizerIntent;
+    private at.markushi.ui.CircleButton voiceSearchButton;
 
     public SearchArtistActivityFragment() {
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(getActivity());
+        mSpeechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        mSpeechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        mSpeechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,
+                getActivity().getPackageName());
+
+
+        SpeechRecognitionListener listener = new SpeechRecognitionListener();
+        mSpeechRecognizer.setRecognitionListener(listener);
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mSpeechRecognizer != null) {
+            mSpeechRecognizer.destroy();
+        }
     }
 
     @Override
@@ -100,6 +131,16 @@ public class SearchArtistActivityFragment extends Fragment {
         artistView = (ListView) rootView.findViewById(R.id.artistListView);
         bindView();
 
+        // voice search
+        voiceSearchButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.voiceSearchButton);
+        voiceSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSpeechRecognizer.startListening(mSpeechRecognizerIntent);
+                spinner.setVisibility(View.VISIBLE);
+            }
+        });
+
         // open top 10 track view
         artistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -111,6 +152,7 @@ public class SearchArtistActivityFragment extends Fragment {
                 startActivity(intent);
             }
         });
+
         return rootView;
     }
 
@@ -226,6 +268,64 @@ public class SearchArtistActivityFragment extends Fragment {
             artistName.setText(getItem(position).artistName);
 
             return row;
+        }
+    }
+
+    protected class SpeechRecognitionListener implements RecognitionListener {
+
+        @Override
+        public void onBeginningOfSpeech() {
+            //Log.d(TAG, "onBeginingOfSpeech");
+        }
+
+        @Override
+        public void onBufferReceived(byte[] buffer) {
+
+        }
+
+        @Override
+        public void onEndOfSpeech() {
+            //Log.d(TAG, "onEndOfSpeech");
+        }
+
+        @Override
+        public void onError(int error) {
+            mSpeechRecognizer.startListening(mSpeechRecognizerIntent);
+
+            //Log.d(TAG, "error = " + error);
+        }
+
+        @Override
+        public void onEvent(int eventType, Bundle params) {
+
+        }
+
+        @Override
+        public void onPartialResults(Bundle partialResults) {
+
+        }
+
+        @Override
+        public void onReadyForSpeech(Bundle params) {
+        }
+
+        @Override
+        public void onResults(Bundle results) {
+            //Log.d(TAG, "onResults"); //$NON-NLS-1$
+            spinner.setVisibility(View.GONE);
+            ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+            // matches are the return values of speech recognition engine
+            // Use these values for whatever you wish to do
+            searchArtistEditText.setText("");
+            searchArtistEditText.setText(matches.get(0));
+            searchArtistEditText.setSelection(searchArtistEditText.getText().length());
+            ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
+                    .showSoftInput(searchArtistEditText, InputMethodManager.SHOW_FORCED);
+            mSpeechRecognizer.cancel();
+        }
+
+        @Override
+        public void onRmsChanged(float rmsdB) {
         }
     }
 }
