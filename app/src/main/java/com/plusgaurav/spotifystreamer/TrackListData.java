@@ -21,10 +21,10 @@ public class TrackListData implements Parcelable {
         this.trackName = track.name;
         this.trackAlbum = track.album.name;
         for (Image image : track.album.images) {
-            if (image.width >= 200 && image.width <= 300) {
+            if (image.width >= 150 && image.width <= 300) {
                 this.trackImageSmall = image.url;
             }
-            if (image.width >= 640) {
+            if (image.width >= 500) {
                 this.trackImageLarge = image.url;
             }
             this.trackPreviewUrl = track.preview_url;

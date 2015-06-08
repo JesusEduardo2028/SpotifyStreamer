@@ -15,7 +15,7 @@ public class ArtistListData implements Parcelable {
         artistName = artist.name;
         artistId = artist.id;
         for (Image image : artist.images) {
-            if (image.width >= 200 && image.width <= 300) {
+            if (image.width >= 150 && image.width <= 300) {
                 artistImage = image.url;
                 break;
             }

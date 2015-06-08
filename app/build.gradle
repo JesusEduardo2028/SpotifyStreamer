@@ -40,4 +40,5 @@ dependencies {
     compile 'com.github.markushi:circlebutton:1.1'
     compile 'jp.wasabeef:picasso-transformations:1.0.3@aar'
     compile 'jp.co.cyberagent.android.gpuimage:gpuimage-library:1.2.3@aar'
+    compile 'com.android.support:palette-v7:22.0.0'
 }

@@ -2,10 +2,14 @@ package com.plusgaurav.spotifystreamer;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v7.graphics.Palette;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +21,7 @@ import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.Spotify;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.io.IOException;
 
@@ -108,17 +113,58 @@ public class PlayerActivityFragment extends Fragment {
     private void setUi(int position) {
 
         // set title in the actionbar
-        android.support.v7.app.ActionBar actionBar = PlayerActivity.actionBar;
+        final android.support.v7.app.ActionBar actionBar = PlayerActivity.actionBar;
         assert actionBar != null;
         actionBar.setTitle(TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
         actionBar.setSubtitle(TopTenTracksActivityFragment.topTenTrackList.get(position).trackAlbum);
 
-        // update background image and album art
-        ImageView backgroundImageView = (ImageView) rootView.findViewById(R.id.backgroundImage);
+        // update background image and album art and theme
         String url = TopTenTracksActivityFragment.topTenTrackList.get(position).trackImageLarge;
+
+        // set background image
+        ImageView backgroundImageView = (ImageView) rootView.findViewById(R.id.backgroundImage);
         Picasso.with(rootView.getContext()).load(url).transform(new BlurTransformation(rootView.getContext(), 25)).into(backgroundImageView);
-        ImageView trackImageView = (ImageView) rootView.findViewById(R.id.trackImage);
-        Picasso.with(rootView.getContext()).load(url).placeholder(R.drawable.ic_album).error(R.drawable.ic_album).into(trackImageView);
+
+        Picasso.with(rootView.getContext()).load(url).placeholder(R.drawable.ic_album).error(R.drawable.ic_album).into(new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+
+                // set track image
+                ImageView trackImageView = (ImageView) rootView.findViewById(R.id.trackImage);
+                trackImageView.setImageResource(R.drawable.ic_play);
+                trackImageView.setImageBitmap(bitmap);
+
+                // get prominent colors and set it to ui elements
+                Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
+                    @Override
+                    public void onGenerated(Palette palette) {
+
+                        actionBar.setBackgroundDrawable(new ColorDrawable(palette.getMutedColor(android.R.color.black)));
+                        getActivity().getWindow().setStatusBarColor(palette.getMutedColor(android.R.color.black));
+                        getActivity().getWindow().setNavigationBarColor(palette.getMutedColor(android.R.color.black));
+
+                        at.markushi.ui.CircleButton prevButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.prevButton);
+                        prevButton.setColor(palette.getMutedColor(android.R.color.black));
+
+                        at.markushi.ui.CircleButton playButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.playButton);
+                        playButton.setColor(palette.getMutedColor(android.R.color.black));
+
+                        at.markushi.ui.CircleButton nextButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.nextButton);
+                        nextButton.setColor(palette.getMutedColor(android.R.color.black));
+                    }
+                });
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        });
 
         // artist name
         TextView artistNameView = (TextView) rootView.findViewById(R.id.artistName);
