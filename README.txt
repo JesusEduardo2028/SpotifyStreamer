@@ -7,4 +7,4 @@
 5) Dynamic and responsive player UI that changes based on the song currently being played.
 
 Search artist:
-https://drive.google.com/open?id=0B1nud6-XiAm0OXpaNENBOWtfYkE&authuser=0
+![ScreenShot](https://drive.google.com/open?id=0B1nud6-XiAm0OXpaNENBOWtfYkE&authuser=0)
