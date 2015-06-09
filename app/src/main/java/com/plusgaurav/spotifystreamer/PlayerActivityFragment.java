@@ -94,7 +94,7 @@ public class PlayerActivityFragment extends Fragment {
             public void onClick(View v) {
                 spinner.setVisibility(View.VISIBLE);
                 position = position + 1;
-                if (position > 9) {
+                if (position > TopTenTracksActivityFragment.topTenTrackList.size() - 1) {
                     position = 0;
                 }
                 setUi(position);
