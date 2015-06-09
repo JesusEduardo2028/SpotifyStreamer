@@ -3,7 +3,7 @@
 1) Elegant music streaming app developed using Material Design guidelines.<br />
 2) Uses ffmpeg decoder for smooth streaming.<br />
 3) Uses Spotify Sdk and Web API for song metadata and playback.<br />
-4) Incorporates voice search to search for artists.>br/>
+4) Incorporates voice search to search for artists.<br/>
 5) Dynamic and responsive player UI that changes based on the song currently being played.<br /><br />
 
 <img src="https://cloud.githubusercontent.com/assets/3116252/8048721/e4f7fd9a-0e09-11e5-89e0-f87d004eacf0.jpg" width="200"/>
