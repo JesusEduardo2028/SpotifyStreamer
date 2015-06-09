@@ -118,7 +118,7 @@ public class SearchArtistActivityFragment extends Fragment {
 
                     // search for artists
                     FetchArtistTask task = new FetchArtistTask();
-                    task.execute(searchArtistEditText.getText().toString());
+                    task.execute(searchArtistEditText.getText().toString().replace(" ", "* "));
 
                     return true;
                 }
@@ -318,6 +318,7 @@ public class SearchArtistActivityFragment extends Fragment {
             // matches are the return values of speech recognition engine
             // Use these values for whatever you wish to do
             searchArtistEditText.setText("");
+            assert matches != null;
             searchArtistEditText.setText(matches.get(0));
             searchArtistEditText.setSelection(searchArtistEditText.getText().length());
             ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
