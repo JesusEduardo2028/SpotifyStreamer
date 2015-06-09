@@ -6,6 +6,12 @@
 4) Incorporates voice search to search for artists.
 5) Dynamic and responsive player UI that changes based on the song currently being played.<br /><br />
 
-Search artist:
-![Screenshot](https://www.dropbox.com/s/3vt4ld6tsimjshr/IMG-20150607-WA0009.jpg)
+<img src="https://cloud.githubusercontent.com/assets/3116252/8048721/e4f7fd9a-0e09-11e5-89e0-f87d004eacf0.jpg" width="200"/>
+<img src="https://cloud.githubusercontent.com/assets/3116252/8048722/e4f8afe2-0e09-11e5-85c0-29a36b1ddaec.jpg" width="200"/>
+<img src="https://cloud.githubusercontent.com/assets/3116252/8048720/e4f711dc-0e09-11e5-943e-c8692a3a87f7.jpg" width="200"/>
+<img src="https://cloud.githubusercontent.com/assets/3116252/8048719/e4f63776-0e09-11e5-9224-fecf41f299d0.jpg" width="200"/>
+<img src="https://cloud.githubusercontent.com/assets/3116252/8048722/e4f8afe2-0e09-11e5-85c0-29a36b1ddaec.jpg" width="200"/>
+<img src="https://cloud.githubusercontent.com/assets/3116252/8048722/e4f8afe2-0e09-11e5-85c0-29a36b1ddaec.jpg" width="200"/>
+<img src="https://cloud.githubusercontent.com/assets/3116252/8048725/e4fb571a-0e09-11e5-9f05-98f37655019c.jpg" width="200"/>
+<img src="https://cloud.githubusercontent.com/assets/3116252/8048726/e5053e06-0e09-11e5-9575-a89dcced3d9c.jpg" width="200"/>
 
