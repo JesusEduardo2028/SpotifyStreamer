@@ -260,6 +260,7 @@ public class SearchArtistActivityFragment extends Fragment {
 
             // put artist image
             de.hdodenhof.circleimageview.CircleImageView artistImageView = (de.hdodenhof.circleimageview.CircleImageView) row.findViewById(R.id.artistImage);
+            artistImageView.setImageBitmap(null);
             String url = getItem(position).artistImage;
             Picasso.with(row.getContext()).load(url).placeholder(R.drawable.ic_play).error(R.drawable.ic_play).into(artistImageView);
 

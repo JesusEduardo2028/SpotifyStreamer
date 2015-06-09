@@ -131,7 +131,7 @@ public class PlayerActivityFragment extends Fragment {
 
                 // set track image
                 ImageView trackImageView = (ImageView) rootView.findViewById(R.id.trackImage);
-                trackImageView.setImageResource(R.drawable.ic_play);
+                trackImageView.setImageBitmap(null);
                 trackImageView.setImageBitmap(bitmap);
 
                 // get prominent colors and set it to ui elements

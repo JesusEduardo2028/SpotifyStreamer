@@ -196,6 +196,7 @@ public class TopTenTracksActivityFragment extends Fragment {
 
             // put track image
             de.hdodenhof.circleimageview.CircleImageView trackImageView = (de.hdodenhof.circleimageview.CircleImageView) row.findViewById(R.id.trackImage);
+            trackImageView.setImageBitmap(null);
             String url = getItem(position).trackImageSmall;
             Picasso.with(row.getContext()).load(url).placeholder(R.drawable.ic_play).error(R.drawable.ic_play).into(trackImageView);
 
