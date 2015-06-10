@@ -8,11 +8,11 @@ import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.support.v4.app.Fragment;
-import android.view.KeyEvent;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -43,6 +43,7 @@ public class SearchArtistActivityFragment extends Fragment {
     private SpeechRecognizer mSpeechRecognizer;
     private Intent mSpeechRecognizerIntent;
     private at.markushi.ui.CircleButton voiceSearchButton;
+    private FetchArtistTask task;
 
     public SearchArtistActivityFragment() {
     }
@@ -104,25 +105,36 @@ public class SearchArtistActivityFragment extends Fragment {
 
         // Listener for when the user is done typing the artist name in the edittext feild
         searchArtistEditText = (EditText) rootView.findViewById(R.id.searchArtistEditText);
-        searchArtistEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        searchArtistEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-                    // hide virtual keyboard
-                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(searchArtistEditText.getWindowToken(), 0);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (searchArtistEditText.length() != 0) {
 
                     // show progress bar
                     spinner.setVisibility(View.VISIBLE);
 
-                    // search for artists
-                    FetchArtistTask task = new FetchArtistTask();
-                    task.execute(searchArtistEditText.getText().toString().replace(" ", "* "));
+                    if(task!=null){
+                        task.cancel(false);
+                    }
 
-                    return true;
+                    // search for artists
+                    task = new FetchArtistTask();
+                    task.execute(searchArtistEditText.getText().toString().replace(" ", "* "));
+                }else{
+                    // remove old results on no text
+                    artistList.clear();
+                    artistAdapter.notifyDataSetChanged();
                 }
-                return false;
             }
         });
 
@@ -174,7 +186,11 @@ public class SearchArtistActivityFragment extends Fragment {
 
         @Override
         protected Boolean doInBackground(String... artistName) {
-
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             // for catching network extra exceptions
             try {
                 // do spotify transaction
