@@ -3,8 +3,8 @@
 1) Utilizes ffmpeg transcoder library to enable hardware acceleration for smooth and progressive streaming.<br/>
 2) Utilizes Spotify SDK and Web API for retrieving song metadata and playback.<br/>
 3) You can use voice based search for performing quick searches for artists, songs and albums.<br/>
-4) Uses live-search (Google-like) for returning closest matching results as you type.
-4) Has a responsive player UI, built using Google’s Material Design guidelines that adapts itself based on the current song metadata.<br/> <br/>
+4) Uses live-search (Google-like) for returning closest matching results as you type.<br/>
+5) Has a responsive player UI, built using Google’s Material Design guidelines that adapts itself based on the current song metadata.<br/> <br/>
 
 <img src="https://cloud.githubusercontent.com/assets/3116252/8048721/e4f7fd9a-0e09-11e5-89e0-f87d004eacf0.jpg" width="200"/>
 <img src="https://cloud.githubusercontent.com/assets/3116252/8089154/ed8665f8-0f5a-11e5-97d2-9e3d6da413de.jpg" width="200"/>
