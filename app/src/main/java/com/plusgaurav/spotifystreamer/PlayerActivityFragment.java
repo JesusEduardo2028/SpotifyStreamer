@@ -10,6 +10,10 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.graphics.Palette;
+import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.Element;
+import android.support.v8.renderscript.RenderScript;
+import android.support.v8.renderscript.ScriptIntrinsicBlur;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +29,6 @@ import com.squareup.picasso.Target;
 
 import java.io.IOException;
 
-import jp.wasabeef.picasso.transformations.BlurTransformation;
 import wseemann.media.FFmpegMediaPlayer;
 
 public class PlayerActivityFragment extends Fragment {
@@ -40,6 +43,9 @@ public class PlayerActivityFragment extends Fragment {
     at.markushi.ui.CircleButton nextButton;
     protected String trackUrl;
     protected static Player premiumPlayer;
+    ImageView backgroundImageView;
+    ImageView trackImageView;
+    android.support.v7.app.ActionBar actionBar;
 
     public PlayerActivityFragment() {
     }
@@ -49,6 +55,11 @@ public class PlayerActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         rootView = inflater.inflate(R.layout.fragment_player, container, false);
+
+        // get ui elements
+        backgroundImageView = (ImageView) rootView.findViewById(R.id.backgroundImage);
+        trackImageView = (ImageView) rootView.findViewById(R.id.trackImage);
+        actionBar = PlayerActivity.actionBar;
 
         // if song running -> cancel it
         if (freePlayer != null) {
@@ -113,28 +124,24 @@ public class PlayerActivityFragment extends Fragment {
     private void setUi(int position) {
 
         // set title in the actionbar
-        final android.support.v7.app.ActionBar actionBar = PlayerActivity.actionBar;
-        assert actionBar != null;
         actionBar.setTitle(TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
         actionBar.setSubtitle(TopTenTracksActivityFragment.topTenTrackList.get(position).trackAlbum);
 
-        // update background image and album art and theme
+        // get new image url
         String url = TopTenTracksActivityFragment.topTenTrackList.get(position).trackImageLarge;
 
-        // set background image
-        ImageView backgroundImageView = (ImageView) rootView.findViewById(R.id.backgroundImage);
-        Picasso.with(rootView.getContext()).load(url).transform(new BlurTransformation(rootView.getContext(), 25)).into(backgroundImageView);
-
+        // set background and track image and update other ui elements
         Picasso.with(rootView.getContext()).load(url).placeholder(R.drawable.ic_album).error(R.drawable.ic_album).into(new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
 
-                // set track image
-                ImageView trackImageView = (ImageView) rootView.findViewById(R.id.trackImage);
+                Bitmap backgroundBitmap = bitmap;
+                backgroundBitmap = blurImage(backgroundBitmap, 25.0f);
+                backgroundImageView.setImageBitmap(backgroundBitmap);
+
                 trackImageView.setImageBitmap(null);
                 trackImageView.setImageBitmap(bitmap);
 
-                // get prominent colors and set it to ui elements
                 Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
                     @Override
                     public void onGenerated(Palette palette) {
@@ -277,5 +284,28 @@ public class PlayerActivityFragment extends Fragment {
                 }
             });
         }
+    }
+
+    // for blurring image
+    private Bitmap blurImage(Bitmap src, float r) {
+
+        Bitmap bitmap = Bitmap.createBitmap(
+                src.getWidth(), src.getHeight(),
+                Bitmap.Config.ARGB_8888);
+
+        RenderScript renderScript = RenderScript.create(getActivity());
+
+        Allocation blurInput = Allocation.createFromBitmap(renderScript, src);
+        Allocation blurOutput = Allocation.createFromBitmap(renderScript, bitmap);
+
+        ScriptIntrinsicBlur blur = ScriptIntrinsicBlur.create(renderScript,
+                Element.U8_4(renderScript));
+        blur.setInput(blurInput);
+        blur.setRadius(r);
+        blur.forEach(blurOutput);
+
+        blurOutput.copyTo(bitmap);
+        renderScript.destroy();
+        return bitmap;
     }
 }
