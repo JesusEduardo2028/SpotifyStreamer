@@ -123,15 +123,19 @@ public class SearchArtistActivityFragment extends Fragment {
                     // show progress bar
                     spinner.setVisibility(View.VISIBLE);
 
-                    if(task!=null){
+                    if (task != null) {
                         task.cancel(false);
                     }
 
                     // search for artists
                     task = new FetchArtistTask();
-                    task.execute(searchArtistEditText.getText().toString().replace(" ", "* "));
-                }else{
+                    task.execute("*" + searchArtistEditText.getText().toString() + "*");
+                } else {
                     // remove old results on no text
+                    if (task != null) {
+                        task.cancel(false);
+                    }
+                    spinner.setVisibility(View.GONE);
                     artistList.clear();
                     artistAdapter.notifyDataSetChanged();
                 }
@@ -187,7 +191,7 @@ public class SearchArtistActivityFragment extends Fragment {
         @Override
         protected Boolean doInBackground(String... artistName) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

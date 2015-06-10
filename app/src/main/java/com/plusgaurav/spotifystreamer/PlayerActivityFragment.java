@@ -123,10 +123,6 @@ public class PlayerActivityFragment extends Fragment {
 
     private void setUi(int position) {
 
-        // set title in the actionbar
-        actionBar.setTitle(TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
-        actionBar.setSubtitle(TopTenTracksActivityFragment.topTenTrackList.get(position).trackAlbum);
-
         // get new image url
         String url = TopTenTracksActivityFragment.topTenTrackList.get(position).trackImageLarge;
 
@@ -170,8 +166,12 @@ public class PlayerActivityFragment extends Fragment {
             @Override
             public void onPrepareLoad(Drawable placeHolderDrawable) {
 
+
             }
         });
+        // set title in the actionbar
+        actionBar.setTitle(TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
+        actionBar.setSubtitle(TopTenTracksActivityFragment.topTenTrackList.get(position).trackAlbum);
 
         // artist name
         TextView artistNameView = (TextView) rootView.findViewById(R.id.artistName);
@@ -184,7 +184,6 @@ public class PlayerActivityFragment extends Fragment {
         // track Name
         TextView trackNameView = (TextView) rootView.findViewById(R.id.trackName);
         trackNameView.setText(TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
-
     }
 
     private void prepareMusic(int position) {
