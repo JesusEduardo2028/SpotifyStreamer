@@ -191,7 +191,7 @@ public class SearchArtistActivityFragment extends Fragment {
         @Override
         protected Boolean doInBackground(String... artistName) {
             try {
-                Thread.sleep(500);
+                Thread.sleep(200);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

@@ -13,5 +13,7 @@
     <string name="user_type_key">user_type</string>
     <string name="title_activity_player">PlayerActivity</string>
     <string name="hello_world">Hello world!</string>
+    <string name="title_activity_track_video">TrackVideoActivity</string>
+    <string name="title_activity_youtube">YoutubeActivity</string>
 
 </resources>

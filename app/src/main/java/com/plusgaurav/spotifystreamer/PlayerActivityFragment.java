@@ -6,6 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -20,7 +22,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestInitializer;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.youtube.YouTube;
+import com.google.api.services.youtube.model.SearchListResponse;
+import com.google.api.services.youtube.model.SearchResult;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.Spotify;
@@ -28,6 +38,7 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.io.IOException;
+import java.util.List;
 
 import wseemann.media.FFmpegMediaPlayer;
 
@@ -35,7 +46,7 @@ public class PlayerActivityFragment extends Fragment {
 
     View rootView;
     Boolean isPlaying;
-    int position;
+    private int position;
     protected static FFmpegMediaPlayer freePlayer;
     private ProgressBar spinner;
     at.markushi.ui.CircleButton prevButton;
@@ -46,6 +57,8 @@ public class PlayerActivityFragment extends Fragment {
     ImageView backgroundImageView;
     ImageView trackImageView;
     android.support.v7.app.ActionBar actionBar;
+    private YouTube youtube;
+    private YouTube.Search.List query;
 
     public PlayerActivityFragment() {
     }
@@ -64,6 +77,9 @@ public class PlayerActivityFragment extends Fragment {
         // if song running -> cancel it
         if (freePlayer != null) {
             freePlayer.reset();
+        }
+        if (premiumPlayer != null) {
+            premiumPlayer.pause();
         }
 
         // Progress Bar
@@ -121,7 +137,7 @@ public class PlayerActivityFragment extends Fragment {
     }
 
 
-    private void setUi(int position) {
+    private void setUi(final int position) {
 
         // get new image url
         String url = TopTenTracksActivityFragment.topTenTrackList.get(position).trackImageLarge;
@@ -154,6 +170,16 @@ public class PlayerActivityFragment extends Fragment {
 
                         at.markushi.ui.CircleButton nextButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.nextButton);
                         nextButton.setColor(palette.getMutedColor(android.R.color.black));
+                    }
+                });
+
+                trackImageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        // search for video on youtube
+                        SearchId searchId = new SearchId();
+                        searchId.execute(TopTenTracksActivityFragment.topTenTrackList.get(position).trackArtist + " " + TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
                     }
                 });
             }
@@ -282,6 +308,55 @@ public class PlayerActivityFragment extends Fragment {
 
                 }
             });
+        }
+    }
+
+    class SearchId extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            try {
+                youtube = new YouTube.Builder(new NetHttpTransport(),
+                        new JacksonFactory(), new HttpRequestInitializer() {
+                    @Override
+                    public void initialize(HttpRequest hr) throws IOException {
+                    }
+                }).setApplicationName(getActivity().getString(R.string.app_name)).build();
+
+                query = youtube.search().list("id");
+                query.setKey("AIzaSyDmD2n10SLAimt0Uv8pclhx8D1le50AV10");
+                query.setQ(params[0]);
+                query.setType("video");
+                query.setFields("items(id/videoId)");
+                query.setMaxResults(1l);
+
+                SearchListResponse response = query.execute();
+                List<SearchResult> results = response.getItems();
+                return results.get(0).getId().getVideoId();
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            if (s != null) {
+
+                // pause currently running music
+                if (freePlayer != null) {
+                    freePlayer.pause();
+                }
+                if (premiumPlayer != null) {
+                    premiumPlayer.pause();
+                }
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + s));
+                startActivity(intent);
+
+            } else {
+                Toast.makeText(getActivity(), "Video not found!", Toast.LENGTH_LONG).show();
+            }
         }
     }
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.plusgaurav.spotifystreamer">
+    package="com.plusgaurav.spotifystreamer" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -10,11 +10,11 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme" >
         <activity
             android:name=".SearchArtistActivity"
             android:label="@string/app_name"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,7 +28,7 @@
             android:name=".TopTenTracksActivity"
             android:label="@string/title_activity_top_ten_tracks"
             android:launchMode="singleTop"
-            android:parentActivityName=".SearchArtistActivity">
+            android:parentActivityName=".SearchArtistActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.plusgaurav.spotifystreamer.SearchArtistActivity" />
@@ -41,7 +41,7 @@
             android:name=".PlayerActivity"
             android:label="@string/title_activity_player"
             android:launchMode="singleTop"
-            android:parentActivityName=".TopTenTracksActivity">
+            android:parentActivityName=".TopTenTracksActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.plusgaurav.spotifystreamer.TopTenTracksActivity" />
