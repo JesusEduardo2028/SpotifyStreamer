@@ -9,6 +9,7 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.graphics.Palette;
@@ -21,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +35,8 @@ import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Player;
+import com.spotify.sdk.android.player.PlayerState;
+import com.spotify.sdk.android.player.PlayerStateCallback;
 import com.spotify.sdk.android.player.Spotify;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -59,6 +63,8 @@ public class PlayerActivityFragment extends Fragment {
     android.support.v7.app.ActionBar actionBar;
     private YouTube youtube;
     private YouTube.Search.List query;
+    private SeekBar seekBarView;
+    Handler seekHandler = new Handler();
 
     public PlayerActivityFragment() {
     }
@@ -72,6 +78,7 @@ public class PlayerActivityFragment extends Fragment {
         // get ui elements
         backgroundImageView = (ImageView) rootView.findViewById(R.id.backgroundImage);
         trackImageView = (ImageView) rootView.findViewById(R.id.trackImage);
+        seekBarView = (SeekBar) rootView.findViewById(R.id.seekBar);
         actionBar = PlayerActivity.actionBar;
 
         // if song running -> cancel it
@@ -210,6 +217,24 @@ public class PlayerActivityFragment extends Fragment {
         // track Name
         TextView trackNameView = (TextView) rootView.findViewById(R.id.trackName);
         trackNameView.setText(TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
+
+        seekBarView.setMax(Integer.parseInt(TopTenTracksActivityFragment.topTenTrackList.get(position).trackDuration));
+        seekBarView.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
     }
 
     private void prepareMusic(int position) {
@@ -286,6 +311,7 @@ public class PlayerActivityFragment extends Fragment {
 
                     premiumPlayer.play(trackUrl);
                     playButton.setImageResource(R.drawable.ic_pause);
+                    setSeekBar();
                     isPlaying = true;
                     playButton.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -309,6 +335,32 @@ public class PlayerActivityFragment extends Fragment {
                 }
             });
         }
+    }
+
+    Runnable run = new Runnable() {
+        @Override
+        public void run() {
+            setSeekBar();
+        }
+    };
+
+    private void setSeekBar() {
+
+        if (freePlayer != null) {
+            seekBarView.setProgress(freePlayer.getDuration());
+        }
+        if (premiumPlayer != null) {
+            premiumPlayer.getPlayerState(new PlayerStateCallback() {
+                @Override
+                public void onPlayerState(PlayerState playerState) {
+                    seekBarView.setProgress(playerState.positionInMs);
+                    if (playerState.durationInMs == playerState.positionInMs) {
+                        nextButton.callOnClick();
+                    }
+                }
+            });
+        }
+        seekHandler.postDelayed(run, 1000);
     }
 
     class SearchId extends AsyncTask<String, Void, String> {

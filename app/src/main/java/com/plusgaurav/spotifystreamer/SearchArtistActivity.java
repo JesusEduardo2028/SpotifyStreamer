@@ -15,7 +15,7 @@ import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 public class SearchArtistActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    protected static final String CLIENT_ID = "33bbc039194a4921a55a18dedc5bb329";
+    protected static final String CLIENT_ID = "7af8a0889cc34a35b18838154e84c0b4";
     private static final String REDIRECT_URI = "spotifystreamer://callback";
     private static String accessToken;
     private static final int REQUEST_CODE = 1337;
