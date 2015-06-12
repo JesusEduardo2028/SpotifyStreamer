@@ -65,6 +65,8 @@ public class PlayerActivityFragment extends Fragment {
     private YouTube.Search.List query;
     private SeekBar seekBarView;
     Handler seekHandler = new Handler();
+    private TextView currentDuration;
+    private TextView finalDuration;
 
     public PlayerActivityFragment() {
     }
@@ -79,6 +81,8 @@ public class PlayerActivityFragment extends Fragment {
         backgroundImageView = (ImageView) rootView.findViewById(R.id.backgroundImage);
         trackImageView = (ImageView) rootView.findViewById(R.id.trackImage);
         seekBarView = (SeekBar) rootView.findViewById(R.id.seekBar);
+        currentDuration = (TextView) rootView.findViewById(R.id.currentDuration);
+        finalDuration = (TextView) rootView.findViewById(R.id.finalDuration);
         actionBar = PlayerActivity.actionBar;
 
         // if song running -> cancel it
@@ -242,6 +246,16 @@ public class PlayerActivityFragment extends Fragment {
 
             }
         });
+
+        currentDuration.setText("00:00");
+        String duration = TopTenTracksActivityFragment.topTenTrackList.get(position).trackDuration;
+        int seconds = (int) ((Integer.parseInt(duration) / 1000) % 60);
+        int minutes = (int) ((Integer.parseInt(duration) / 1000) / 60);
+        if (seconds < 10) {
+            finalDuration.setText(String.valueOf(minutes) + ":0" + String.valueOf(seconds));
+        } else {
+            finalDuration.setText(String.valueOf(minutes) + ":" + String.valueOf(seconds));
+        }
     }
 
     private void prepareMusic(int position) {
@@ -364,6 +378,13 @@ public class PlayerActivityFragment extends Fragment {
                 @Override
                 public void onPlayerState(PlayerState playerState) {
                     seekBarView.setProgress(playerState.positionInMs);
+                    int seconds = ((playerState.positionInMs / 1000) % 60);
+                    int minutes = ((playerState.positionInMs / 1000) / 60);
+                    if (seconds < 10) {
+                        currentDuration.setText(String.valueOf(minutes) + ":0" + String.valueOf(seconds));
+                    } else {
+                        currentDuration.setText(String.valueOf(minutes) + ":" + String.valueOf(seconds));
+                    }
                 }
             });
 
