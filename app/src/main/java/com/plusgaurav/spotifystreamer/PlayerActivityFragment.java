@@ -17,6 +17,7 @@ import android.support.v8.renderscript.Allocation;
 import android.support.v8.renderscript.Element;
 import android.support.v8.renderscript.RenderScript;
 import android.support.v8.renderscript.ScriptIntrinsicBlur;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -229,6 +230,32 @@ public class PlayerActivityFragment extends Fragment {
                 if (fromUser) {
                     if (premiumPlayer != null) {
                         premiumPlayer.seekToPosition(progress);
+
+                        // reposition lyrics
+                        Intent intent = new Intent();
+                        intent.setAction("com.android.music.playstatechanged");
+                        Bundle bundle = new Bundle();
+
+                        // put the song's metadata
+                        bundle.putString("track", TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
+                        bundle.putString("artist", TopTenTracksActivityFragment.topTenTrackList.get(position).trackArtist);
+                        bundle.putString("album", TopTenTracksActivityFragment.topTenTrackList.get(position).trackAlbum);
+
+                        // put the song's total duration (in ms)
+                        bundle.putLong("duration", Integer.parseInt(TopTenTracksActivityFragment.topTenTrackList.get(position).trackDuration)); // 4:05
+
+                        // put the song's current position
+                        bundle.putLong("position", progress); // beginning of the song
+
+                        // put the playback status
+                        bundle.putBoolean("playing", true); // currently playing
+
+                        // put your application's package
+                        bundle.putString("scrobbling_source", "com.plusgaurav.spotifystreamer");
+
+                        intent.putExtras(bundle);
+                        getActivity().sendBroadcast(intent);
+
                     }
                     if (freePlayer != null) {
                         freePlayer.seekTo(progress);
@@ -258,7 +285,7 @@ public class PlayerActivityFragment extends Fragment {
         }
     }
 
-    private void prepareMusic(int position) {
+    private void prepareMusic(final int position) {
 
         // check for free or premium user
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -331,6 +358,32 @@ public class PlayerActivityFragment extends Fragment {
                     playButton.setClickable(true);
 
                     premiumPlayer.play(trackUrl);
+
+                    // start lyrics
+                    Intent intent = new Intent();
+                    intent.setAction("com.android.music.metachanged");
+                    Bundle bundle = new Bundle();
+
+                    // put the song's metadata
+                    bundle.putString("track", TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
+                    bundle.putString("artist", TopTenTracksActivityFragment.topTenTrackList.get(position).trackArtist);
+                    bundle.putString("album", TopTenTracksActivityFragment.topTenTrackList.get(position).trackAlbum);
+
+                    // put the song's total duration (in ms)
+                    bundle.putLong("duration", Integer.parseInt(TopTenTracksActivityFragment.topTenTrackList.get(position).trackDuration)); // 4:05
+
+                    // put the song's current position
+                    bundle.putLong("position", 0L); // beginning of the song
+
+                    // put the playback status
+                    bundle.putBoolean("playing", true); // currently playing
+
+                    // put your application's package
+                    bundle.putString("scrobbling_source", "com.plusgaurav.spotifystreamer");
+
+                    intent.putExtras(bundle);
+                    getActivity().sendBroadcast(intent);
+
                     playButton.setImageResource(R.drawable.ic_pause);
                     setSeekBar();
                     isPlaying = true;
@@ -338,13 +391,70 @@ public class PlayerActivityFragment extends Fragment {
                         @Override
                         public void onClick(View v) {
                             if (!isPlaying) {
-                                premiumPlayer.play(trackUrl);
+                                Log.v("---------->", "I am here!");
+                                premiumPlayer.resume();
                                 playButton.setImageResource(R.drawable.ic_pause);
                                 isPlaying = true;
+
+                                premiumPlayer.getPlayerState(new PlayerStateCallback() {
+                                    @Override
+                                    public void onPlayerState(PlayerState playerState) {
+                                        int songPosition = playerState.positionInMs;
+
+                                        // resume lyrics
+                                        Intent intent = new Intent();
+                                        intent.setAction("com.android.music.playstatechanged");
+                                        Bundle bundle = new Bundle();
+
+                                        // put the song's metadata
+                                        bundle.putString("track", TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
+                                        bundle.putString("artist", TopTenTracksActivityFragment.topTenTrackList.get(position).trackArtist);
+                                        bundle.putString("album", TopTenTracksActivityFragment.topTenTrackList.get(position).trackAlbum);
+
+                                        // put the song's total duration (in ms)
+                                        bundle.putLong("duration", Integer.parseInt(TopTenTracksActivityFragment.topTenTrackList.get(position).trackDuration)); // 4:05
+
+                                        // put the song's current position
+                                        bundle.putLong("position", songPosition);
+
+                                        // put the playback status
+                                        bundle.putBoolean("playing", true); // currently playing
+
+                                        // put your application's package
+                                        bundle.putString("scrobbling_source", "com.plusgaurav.spotifystreamer");
+
+                                        intent.putExtras(bundle);
+                                        getActivity().sendBroadcast(intent);
+                                    }
+                                });
+
                             } else {
                                 premiumPlayer.pause();
                                 isPlaying = false;
                                 playButton.setImageResource(R.drawable.ic_play);
+
+                                // pause lyrics
+                                Intent intent = new Intent();
+                                intent.setAction("com.android.music.playstatechanged");
+                                Bundle bundle = new Bundle();
+
+                                // put the song's metadata
+                                bundle.putString("track", TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
+                                bundle.putString("artist", TopTenTracksActivityFragment.topTenTrackList.get(position).trackArtist);
+                                bundle.putString("album", TopTenTracksActivityFragment.topTenTrackList.get(position).trackAlbum);
+
+                                // put the song's total duration (in ms)
+                                bundle.putLong("duration", Integer.parseInt(TopTenTracksActivityFragment.topTenTrackList.get(position).trackDuration)); // 4:05
+
+                                // put the playback status
+                                bundle.putBoolean("playing", false); // currently playing
+
+                                // put your application's package
+                                bundle.putString("scrobbling_source", "com.plusgaurav.spotifystreamer");
+
+                                intent.putExtras(bundle);
+                                getActivity().sendBroadcast(intent);
+
                             }
                         }
                     });
