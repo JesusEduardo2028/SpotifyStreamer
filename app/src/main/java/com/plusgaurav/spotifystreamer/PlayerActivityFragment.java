@@ -222,7 +222,14 @@ public class PlayerActivityFragment extends Fragment {
         seekBarView.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
+                if (fromUser) {
+                    if (premiumPlayer != null) {
+                        premiumPlayer.seekToPosition(progress);
+                    }
+                    if (freePlayer != null) {
+                        freePlayer.seekTo(progress);
+                    }
+                }
             }
 
             @Override
@@ -348,17 +355,18 @@ public class PlayerActivityFragment extends Fragment {
 
         if (freePlayer != null) {
             seekBarView.setProgress(freePlayer.getDuration());
+            if (seekBarView.getMax() == freePlayer.getDuration()) {
+                nextButton.callOnClick();
+            }
         }
         if (premiumPlayer != null) {
             premiumPlayer.getPlayerState(new PlayerStateCallback() {
                 @Override
                 public void onPlayerState(PlayerState playerState) {
                     seekBarView.setProgress(playerState.positionInMs);
-                    if (playerState.durationInMs == playerState.positionInMs) {
-                        nextButton.callOnClick();
-                    }
                 }
             });
+
         }
         seekHandler.postDelayed(run, 1000);
     }
