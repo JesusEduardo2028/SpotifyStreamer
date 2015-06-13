@@ -52,12 +52,12 @@
                 android:id="@+id/youTubeButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_youtube"
-                android:layout_marginStart="20dp"
-                android:layout_marginBottom="20dp"
                 android:layout_alignBottom="@+id/trackImage"
-                android:layout_alignStart="@+id/trackImage" />
+                android:layout_alignStart="@+id/trackImage"
+                android:layout_marginBottom="20dp"
+                android:layout_marginStart="20dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_youtube" />
         </RelativeLayout>
 
 
@@ -111,7 +111,7 @@
                 android:layout_marginTop="15dp"
                 android:src="@drawable/ic_prev"
                 app:cb_color="#1B5E20"
-                app:cb_pressedRingWidth="8dip" />
+                app:cb_pressedRingWidth="10dip" />
 
             <at.markushi.ui.CircleButton
                 android:id="@+id/playButton"
@@ -121,9 +121,10 @@
                 android:layout_marginLeft="45dp"
                 android:layout_marginRight="45dp"
                 android:layout_marginTop="15dp"
+                android:scaleType="centerInside"
                 android:src="@drawable/ic_play"
                 app:cb_color="#1B5E20"
-                app:cb_pressedRingWidth="8dip" />
+                app:cb_pressedRingWidth="10dip" />
 
             <at.markushi.ui.CircleButton
                 android:id="@+id/nextButton"
@@ -133,7 +134,7 @@
                 android:layout_marginTop="15dp"
                 android:src="@drawable/ic_next"
                 app:cb_color="#1B5E20"
-                app:cb_pressedRingWidth="8dip" />
+                app:cb_pressedRingWidth="10dip" />
         </LinearLayout>
 
     </LinearLayout>

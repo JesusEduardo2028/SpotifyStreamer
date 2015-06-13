@@ -4,8 +4,8 @@
     <style name="AppTheme" parent="Theme.AppCompat">
         <!--Material Design Elements -->
         <item name="colorPrimary">#1B5E20</item>
-        <item name="colorPrimaryDark">#2E7D32</item>
-        <item name="android:navigationBarColor">#2E7D32</item>
+        <item name="colorPrimaryDark">#901B5E20</item>
+        <item name="android:navigationBarColor">#901B5E20</item>
     </style>
 
 </resources>

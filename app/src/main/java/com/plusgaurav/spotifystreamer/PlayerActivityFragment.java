@@ -3,6 +3,8 @@ package com.plusgaurav.spotifystreamer;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -17,7 +19,6 @@ import android.support.v8.renderscript.Allocation;
 import android.support.v8.renderscript.Element;
 import android.support.v8.renderscript.RenderScript;
 import android.support.v8.renderscript.ScriptIntrinsicBlur;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,26 +51,35 @@ import wseemann.media.FFmpegMediaPlayer;
 
 public class PlayerActivityFragment extends Fragment {
 
-    View rootView;
-    Boolean isPlaying;
-    private int position;
-    protected static FFmpegMediaPlayer freePlayer;
+    // views
+    private View rootView;
+    private android.support.v7.app.ActionBar actionBar;
+    private ImageView backgroundImageView;
+    private TextView artistNameView;
+    private TextView albumNameView;
+    private ImageView trackImageView;
+    private ImageView youTubeButtonView;
+    private TextView trackNameView;
+    private TextView currentDuration;
+    private SeekBar seekBarView;
+    private TextView finalDuration;
+    private at.markushi.ui.CircleButton prevButton;
+    private at.markushi.ui.CircleButton playButton;
+    private at.markushi.ui.CircleButton nextButton;
     private ProgressBar spinner;
-    at.markushi.ui.CircleButton prevButton;
-    at.markushi.ui.CircleButton playButton;
-    at.markushi.ui.CircleButton nextButton;
-    protected String trackUrl;
+
+    private Boolean isPlaying;
+    private int songPosition;
+    String imageUrl;
+    protected static FFmpegMediaPlayer freePlayer;
+
     protected static Player premiumPlayer;
-    ImageView backgroundImageView;
-    ImageView trackImageView;
-    android.support.v7.app.ActionBar actionBar;
+
     private YouTube youtube;
     private YouTube.Search.List query;
-    private SeekBar seekBarView;
-    Handler seekHandler = new Handler();
-    private TextView currentDuration;
-    private TextView finalDuration;
-    private ImageView youTubeButtonView;
+
+    private Handler seekHandler = new Handler();
+
 
     public PlayerActivityFragment() {
     }
@@ -78,174 +88,152 @@ public class PlayerActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        // get root view
         rootView = inflater.inflate(R.layout.fragment_player, container, false);
 
-        // get ui elements
+        // initialize ui elements
+        actionBar = PlayerActivity.actionBar;
         backgroundImageView = (ImageView) rootView.findViewById(R.id.backgroundImage);
+        artistNameView = (TextView) rootView.findViewById(R.id.artistName);
+        albumNameView = (TextView) rootView.findViewById(R.id.albumName);
         trackImageView = (ImageView) rootView.findViewById(R.id.trackImage);
         youTubeButtonView = (ImageButton) rootView.findViewById(R.id.youTubeButton);
-        seekBarView = (SeekBar) rootView.findViewById(R.id.seekBar);
+        trackNameView = (TextView) rootView.findViewById(R.id.trackName);
         currentDuration = (TextView) rootView.findViewById(R.id.currentDuration);
+        seekBarView = (SeekBar) rootView.findViewById(R.id.seekBar);
         finalDuration = (TextView) rootView.findViewById(R.id.finalDuration);
-        actionBar = PlayerActivity.actionBar;
+        prevButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.prevButton);
+        playButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.playButton);
+        nextButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.nextButton);
+        spinner = (ProgressBar) rootView.findViewById(R.id.progressBar3);
 
-        // if song running -> cancel it
+        // if song running -> pause it
         if (freePlayer != null) {
-            freePlayer.reset();
+            freePlayer.pause();
         }
         if (premiumPlayer != null) {
             premiumPlayer.pause();
         }
 
-        // Progress Bar
-        spinner = (ProgressBar) rootView.findViewById(R.id.progressBar3);
+        // Progress Bar to display loading while everything is being set up
         spinner.setVisibility(View.VISIBLE);
 
-        // get position
-        position = Integer.parseInt(getActivity().getIntent().getStringExtra(Intent.EXTRA_TEXT));
+        // get song number from list of songs
+        songPosition = Integer.parseInt(getActivity().getIntent().getStringExtra(Intent.EXTRA_TEXT));
 
         // setup ui
-        setUi(position);
+        setUi();
 
         // prepare music
-        prepareMusic(position);
-
-        // prev button
-        prevButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.prevButton);
-        prevButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                spinner.setVisibility(View.VISIBLE);
-                position = position - 1;
-                if (position < 0) {
-                    position = 0;
-                }
-                setUi(position);
-                playButton.setImageResource(R.drawable.ic_play);
-                if (freePlayer != null) {
-                    freePlayer.reset();
-                }
-                prepareMusic(position);
-            }
-        });
-
-        // next button
-        nextButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.nextButton);
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                spinner.setVisibility(View.VISIBLE);
-                position = position + 1;
-                if (position > TopTenTracksActivityFragment.topTenTrackList.size() - 1) {
-                    position = 0;
-                }
-                setUi(position);
-                playButton.setImageResource(R.drawable.ic_play);
-                if (freePlayer != null) {
-                    freePlayer.reset();
-                }
-                prepareMusic(position);
-            }
-        });
+        prepareMusic();
 
         return rootView;
     }
 
 
-    private void setUi(final int position) {
+    private void setUi() {
 
-        // get new image url
-        String url = TopTenTracksActivityFragment.topTenTrackList.get(position).trackImageLarge;
+        // set track name and album name in the actionbar
+        actionBar.setTitle(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackName);
+        actionBar.setSubtitle(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackAlbum);
 
-        // set background and track image and update other ui elements
-        Picasso.with(rootView.getContext()).load(url).placeholder(R.drawable.ic_album).error(R.drawable.ic_album).into(new Target() {
+        // TODO: remove once ui is modified
+        // artist and album name
+        artistNameView.setText(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackArtist);
+        albumNameView.setText(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackAlbum);
+
+        // get image url
+        imageUrl = TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackImageLarge;
+        Picasso.with(rootView.getContext()).load(imageUrl).placeholder(R.drawable.ic_album).error(R.drawable.ic_album).into(new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
 
+                // blur and set background image
                 Bitmap backgroundBitmap = bitmap;
                 backgroundBitmap = blurImage(backgroundBitmap, 25.0f);
                 backgroundImageView.setImageBitmap(backgroundBitmap);
 
-                trackImageView.setImageBitmap(null);
+                // set track image
                 trackImageView.setImageBitmap(bitmap);
 
+                // update ui elements based on average color of track image
                 Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
                     @Override
                     public void onGenerated(Palette palette) {
 
+                        // action bar
                         actionBar.setBackgroundDrawable(new ColorDrawable(palette.getMutedColor(android.R.color.black)));
+
+                        // status bar
                         getActivity().getWindow().setStatusBarColor(palette.getMutedColor(android.R.color.black));
+
+                        // navigation bar
                         getActivity().getWindow().setNavigationBarColor(palette.getMutedColor(android.R.color.black));
 
-                        at.markushi.ui.CircleButton prevButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.prevButton);
+                        // playback buttons
                         prevButton.setColor(palette.getMutedColor(android.R.color.black));
-
-                        at.markushi.ui.CircleButton playButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.playButton);
                         playButton.setColor(palette.getMutedColor(android.R.color.black));
-
-                        at.markushi.ui.CircleButton nextButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.nextButton);
                         nextButton.setColor(palette.getMutedColor(android.R.color.black));
+
+                        // seek bar
+                        seekBarView.getProgressDrawable().setColorFilter(new PorterDuffColorFilter(palette.getMutedColor(android.R.color.black), PorterDuff.Mode.MULTIPLY));
+                        // TODO: Add change color of thumb
                     }
                 });
 
+                // search and link music video on youtube
+                // TODO: Disable youtube linkage on freeplayer
                 youTubeButtonView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
-                        // search for video on youtube
-                        SearchId searchId = new SearchId();
-                        searchId.execute(TopTenTracksActivityFragment.topTenTrackList.get(position).trackArtist + " " + TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
+                        SearchVideoId searchVideoId = new SearchVideoId();
+                        searchVideoId.execute(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackArtist + " " + TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackName);
                     }
                 });
             }
 
             @Override
             public void onBitmapFailed(Drawable errorDrawable) {
-                setUi(position);
+                // try again
+                setUi();
             }
 
             @Override
             public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-
             }
         });
-        // set title in the actionbar
-        actionBar.setTitle(TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
-        actionBar.setSubtitle(TopTenTracksActivityFragment.topTenTrackList.get(position).trackAlbum);
 
-        // artist name
-        TextView artistNameView = (TextView) rootView.findViewById(R.id.artistName);
-        artistNameView.setText(TopTenTracksActivityFragment.topTenTrackList.get(position).trackArtist);
-
-        // album name
-        TextView albumNameView = (TextView) rootView.findViewById(R.id.albumName);
-        albumNameView.setText(TopTenTracksActivityFragment.topTenTrackList.get(position).trackAlbum);
 
         // track Name
-        TextView trackNameView = (TextView) rootView.findViewById(R.id.trackName);
-        trackNameView.setText(TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
+        trackNameView.setText(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackName);
 
-        seekBarView.setMax(Integer.parseInt(TopTenTracksActivityFragment.topTenTrackList.get(position).trackDuration));
+        // seekbar setup and progress listener
+        seekBarView.setMax(Integer.parseInt(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackDuration));
         seekBarView.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
+
+                    if (freePlayer != null) {
+                        freePlayer.seekTo(progress);
+                    }
                     if (premiumPlayer != null) {
                         premiumPlayer.seekToPosition(progress);
 
+                        // get updated lyrics from musixmatch on position change
                         // reposition lyrics
                         Intent intent = new Intent();
                         intent.setAction("com.android.music.playstatechanged");
                         Bundle bundle = new Bundle();
 
                         // put the song's metadata
-                        bundle.putString("track", TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
-                        bundle.putString("artist", TopTenTracksActivityFragment.topTenTrackList.get(position).trackArtist);
-                        bundle.putString("album", TopTenTracksActivityFragment.topTenTrackList.get(position).trackAlbum);
+                        bundle.putString("track", TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackName);
+                        bundle.putString("artist", TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackArtist);
+                        bundle.putString("album", TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackAlbum);
 
                         // put the song's total duration (in ms)
-                        bundle.putLong("duration", Integer.parseInt(TopTenTracksActivityFragment.topTenTrackList.get(position).trackDuration)); // 4:05
+                        bundle.putLong("duration", Integer.parseInt(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackDuration)); // 4:05
 
                         // put the song's current position
                         bundle.putLong("position", progress); // beginning of the song
@@ -259,9 +247,6 @@ public class PlayerActivityFragment extends Fragment {
                         intent.putExtras(bundle);
                         getActivity().sendBroadcast(intent);
 
-                    }
-                    if (freePlayer != null) {
-                        freePlayer.seekTo(progress);
                     }
                 }
             }
@@ -277,8 +262,11 @@ public class PlayerActivityFragment extends Fragment {
             }
         });
 
+        // set start position of track
         currentDuration.setText("00:00");
-        String duration = TopTenTracksActivityFragment.topTenTrackList.get(position).trackDuration;
+
+        // set end duration of track
+        String duration = TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackDuration;
         int seconds = ((Integer.parseInt(duration) / 1000) % 60);
         int minutes = ((Integer.parseInt(duration) / 1000) / 60);
         if (seconds < 10) {
@@ -286,19 +274,60 @@ public class PlayerActivityFragment extends Fragment {
         } else {
             finalDuration.setText(String.valueOf(minutes) + ":" + String.valueOf(seconds));
         }
+
+        // prev button on click listener
+        prevButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                spinner.setVisibility(View.VISIBLE);
+                songPosition = songPosition - 1;
+                if (songPosition < 0) {
+                    songPosition = 0;
+                }
+                setUi();
+                playButton.setImageResource(R.drawable.ic_play);
+                if (freePlayer != null) {
+                    freePlayer.reset();
+                }
+                prepareMusic();
+            }
+        });
+
+        // next button on click listener
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                spinner.setVisibility(View.VISIBLE);
+                songPosition = songPosition + 1;
+                if (songPosition > TopTenTracksActivityFragment.topTenTrackList.size() - 1) {
+                    songPosition = 0;
+                }
+                setUi();
+                playButton.setImageResource(R.drawable.ic_play);
+                if (freePlayer != null) {
+                    freePlayer.reset();
+                }
+                prepareMusic();
+            }
+        });
     }
 
-    private void prepareMusic(final int position) {
+    private void prepareMusic() {
 
         // check for free or premium user
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String userType = prefs.getString(getString(R.string.user_type_key),
                 getString(R.string.user_type_key));
 
+        // free user
         if (userType.equals("free")) {
+
+            // get preview track
+            String trackUrl = TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackPreviewUrl;
+
             freePlayer = new FFmpegMediaPlayer();
             freePlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            trackUrl = TopTenTracksActivityFragment.topTenTrackList.get(position).trackPreviewUrl;
+
             try {
                 freePlayer.setDataSource(trackUrl);
                 freePlayer.prepareAsync();
@@ -306,11 +335,10 @@ public class PlayerActivityFragment extends Fragment {
                 e.printStackTrace();
             }
 
-            // play button
-            playButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.playButton);
+            // initially not playing
             isPlaying = false;
 
-            // grey out until prepare
+            // disable until prepared
             playButton.setClickable(false);
             playButton.setImageResource(R.drawable.ic_stop);
 
@@ -321,10 +349,13 @@ public class PlayerActivityFragment extends Fragment {
 
                     // restore button
                     playButton.setClickable(true);
+                    playButton.setImageResource(R.drawable.ic_pause);
 
                     freePlayer.start();
-                    playButton.setImageResource(R.drawable.ic_pause);
+                    setSeekBar();
                     isPlaying = true;
+
+                    // play/pause
                     playButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -342,44 +373,47 @@ public class PlayerActivityFragment extends Fragment {
                 }
             });
         } else {
-            // play button
-            playButton = (at.markushi.ui.CircleButton) rootView.findViewById(R.id.playButton);
+            // premium player
+
+            // get track
+            final String trackUrl = TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackUrl;
+
+            // initially not playing
             isPlaying = false;
 
-            // grey out until prepare
+            // disable until prepared
             playButton.setClickable(false);
             playButton.setImageResource(R.drawable.ic_stop);
 
-            trackUrl = TopTenTracksActivityFragment.topTenTrackList.get(position).trackUrl;
             Config playerConfig = new Config(getActivity(), SearchArtistActivity.getAccessToken(), SearchArtistActivity.CLIENT_ID);
             premiumPlayer = Spotify.getPlayer(playerConfig, getActivity(), new Player.InitializationObserver() {
                 @Override
                 public void onInitialized(Player player) {
-                    spinner.setVisibility(View.GONE);
 
                     // restore button
                     playButton.setClickable(true);
 
                     premiumPlayer.play(trackUrl);
+                    spinner.setVisibility(View.GONE);
 
-                    // start lyrics
+                    // start lyrics if musixmatch app installed
                     Intent intent = new Intent();
                     intent.setAction("com.android.music.metachanged");
                     Bundle bundle = new Bundle();
 
                     // put the song's metadata
-                    bundle.putString("track", TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
-                    bundle.putString("artist", TopTenTracksActivityFragment.topTenTrackList.get(position).trackArtist);
-                    bundle.putString("album", TopTenTracksActivityFragment.topTenTrackList.get(position).trackAlbum);
+                    bundle.putString("track", TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackName);
+                    bundle.putString("artist", TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackArtist);
+                    bundle.putString("album", TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackAlbum);
 
                     // put the song's total duration (in ms)
-                    bundle.putLong("duration", Integer.parseInt(TopTenTracksActivityFragment.topTenTrackList.get(position).trackDuration)); // 4:05
+                    bundle.putLong("duration", Integer.parseInt(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackDuration));
 
                     // put the song's current position
-                    bundle.putLong("position", 0L); // beginning of the song
+                    bundle.putLong("position", 0L);
 
                     // put the playback status
-                    bundle.putBoolean("playing", true); // currently playing
+                    bundle.putBoolean("playing", true);
 
                     // put your application's package
                     bundle.putString("scrobbling_source", "com.plusgaurav.spotifystreamer");
@@ -390,11 +424,12 @@ public class PlayerActivityFragment extends Fragment {
                     playButton.setImageResource(R.drawable.ic_pause);
                     setSeekBar();
                     isPlaying = true;
+
+                    // play/pause
                     playButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             if (!isPlaying) {
-                                Log.v("---------->", "I am here!");
                                 premiumPlayer.resume();
                                 playButton.setImageResource(R.drawable.ic_pause);
                                 isPlaying = true;
@@ -410,18 +445,18 @@ public class PlayerActivityFragment extends Fragment {
                                         Bundle bundle = new Bundle();
 
                                         // put the song's metadata
-                                        bundle.putString("track", TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
-                                        bundle.putString("artist", TopTenTracksActivityFragment.topTenTrackList.get(position).trackArtist);
-                                        bundle.putString("album", TopTenTracksActivityFragment.topTenTrackList.get(position).trackAlbum);
+                                        bundle.putString("track", TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackName);
+                                        bundle.putString("artist", TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackArtist);
+                                        bundle.putString("album", TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackAlbum);
 
                                         // put the song's total duration (in ms)
-                                        bundle.putLong("duration", Integer.parseInt(TopTenTracksActivityFragment.topTenTrackList.get(position).trackDuration)); // 4:05
+                                        bundle.putLong("duration", Integer.parseInt(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackDuration));
 
                                         // put the song's current position
                                         bundle.putLong("position", songPosition);
 
                                         // put the playback status
-                                        bundle.putBoolean("playing", true); // currently playing
+                                        bundle.putBoolean("playing", true);
 
                                         // put your application's package
                                         bundle.putString("scrobbling_source", "com.plusgaurav.spotifystreamer");
@@ -442,15 +477,15 @@ public class PlayerActivityFragment extends Fragment {
                                 Bundle bundle = new Bundle();
 
                                 // put the song's metadata
-                                bundle.putString("track", TopTenTracksActivityFragment.topTenTrackList.get(position).trackName);
-                                bundle.putString("artist", TopTenTracksActivityFragment.topTenTrackList.get(position).trackArtist);
-                                bundle.putString("album", TopTenTracksActivityFragment.topTenTrackList.get(position).trackAlbum);
+                                bundle.putString("track", TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackName);
+                                bundle.putString("artist", TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackArtist);
+                                bundle.putString("album", TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackAlbum);
 
                                 // put the song's total duration (in ms)
-                                bundle.putLong("duration", Integer.parseInt(TopTenTracksActivityFragment.topTenTrackList.get(position).trackDuration)); // 4:05
+                                bundle.putLong("duration", Integer.parseInt(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackDuration)); // 4:05
 
                                 // put the playback status
-                                bundle.putBoolean("playing", false); // currently playing
+                                bundle.putBoolean("playing", false);
 
                                 // put your application's package
                                 bundle.putString("scrobbling_source", "com.plusgaurav.spotifystreamer");
@@ -465,26 +500,18 @@ public class PlayerActivityFragment extends Fragment {
 
                 @Override
                 public void onError(Throwable throwable) {
-
+                    //try again
+                    prepareMusic();
                 }
             });
         }
     }
 
-    Runnable run = new Runnable() {
-        @Override
-        public void run() {
-            setSeekBar();
-        }
-    };
-
+    // set up seek bar properties and also update current and max duration
     private void setSeekBar() {
 
         if (freePlayer != null) {
             seekBarView.setProgress(freePlayer.getDuration());
-            if (seekBarView.getMax() == freePlayer.getDuration()) {
-                nextButton.callOnClick();
-            }
         }
         if (premiumPlayer != null) {
             premiumPlayer.getPlayerState(new PlayerStateCallback() {
@@ -502,10 +529,21 @@ public class PlayerActivityFragment extends Fragment {
             });
 
         }
+
+        // ping for updated position every second
         seekHandler.postDelayed(run, 1000);
     }
 
-    class SearchId extends AsyncTask<String, Void, String> {
+    // seperate thread for pinging seekbar position
+    Runnable run = new Runnable() {
+        @Override
+        public void run() {
+            setSeekBar();
+        }
+    };
+
+    // Search for music video in youtube
+    class SearchVideoId extends AsyncTask<String, Void, String> {
 
         @Override
         protected String doInBackground(String... params) {
