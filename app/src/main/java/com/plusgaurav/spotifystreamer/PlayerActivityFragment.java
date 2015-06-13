@@ -23,6 +23,7 @@ import android.support.v8.renderscript.ScriptIntrinsicBlur;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -149,10 +150,14 @@ public class PlayerActivityFragment extends Fragment {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
 
-                // blur and set background image
+                // blur and set background image with animation
                 Bitmap backgroundBitmap = bitmap;
                 backgroundBitmap = blurImage(backgroundBitmap, 25.0f);
                 backgroundImageView.setImageBitmap(backgroundBitmap);
+                AlphaAnimation alpha = new AlphaAnimation(1, 0.5F);
+                alpha.setDuration(1000);
+                alpha.setFillAfter(true);
+                backgroundImageView.startAnimation(alpha);
 
                 // set track image
                 trackImageView.setImageBitmap(bitmap);
