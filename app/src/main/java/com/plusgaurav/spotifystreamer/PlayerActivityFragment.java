@@ -3,6 +3,7 @@ package com.plusgaurav.spotifystreamer;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.ColorDrawable;
@@ -161,14 +162,18 @@ public class PlayerActivityFragment extends Fragment {
                     @Override
                     public void onGenerated(Palette palette) {
 
+                        int color = palette.getMutedColor(android.R.color.black);
+                        int alphaColor = Color.argb(Math.round(Color.alpha(color) * 0.9f), Color.red(color), Color.green(color), Color.blue(color));
+
                         // action bar
                         actionBar.setBackgroundDrawable(new ColorDrawable(palette.getMutedColor(android.R.color.black)));
 
                         // status bar
-                        getActivity().getWindow().setStatusBarColor(palette.getMutedColor(android.R.color.black));
+                        getActivity().getWindow().setStatusBarColor(alphaColor);
+                        getActivity().getWindow();
 
                         // navigation bar
-                        getActivity().getWindow().setNavigationBarColor(palette.getMutedColor(android.R.color.black));
+                        getActivity().getWindow().setNavigationBarColor(alphaColor);
 
                         // playback buttons
                         prevButton.setColor(palette.getMutedColor(android.R.color.black));
