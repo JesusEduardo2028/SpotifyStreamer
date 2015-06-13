@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
@@ -68,6 +69,7 @@ public class PlayerActivityFragment extends Fragment {
     Handler seekHandler = new Handler();
     private TextView currentDuration;
     private TextView finalDuration;
+    private ImageView youTubeButtonView;
 
     public PlayerActivityFragment() {
     }
@@ -81,6 +83,7 @@ public class PlayerActivityFragment extends Fragment {
         // get ui elements
         backgroundImageView = (ImageView) rootView.findViewById(R.id.backgroundImage);
         trackImageView = (ImageView) rootView.findViewById(R.id.trackImage);
+        youTubeButtonView = (ImageButton) rootView.findViewById(R.id.youTubeButton);
         seekBarView = (SeekBar) rootView.findViewById(R.id.seekBar);
         currentDuration = (TextView) rootView.findViewById(R.id.currentDuration);
         finalDuration = (TextView) rootView.findViewById(R.id.finalDuration);
@@ -185,7 +188,7 @@ public class PlayerActivityFragment extends Fragment {
                     }
                 });
 
-                trackImageView.setOnClickListener(new View.OnClickListener() {
+                youTubeButtonView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
@@ -198,7 +201,7 @@ public class PlayerActivityFragment extends Fragment {
 
             @Override
             public void onBitmapFailed(Drawable errorDrawable) {
-
+                setUi(position);
             }
 
             @Override
@@ -276,8 +279,8 @@ public class PlayerActivityFragment extends Fragment {
 
         currentDuration.setText("00:00");
         String duration = TopTenTracksActivityFragment.topTenTrackList.get(position).trackDuration;
-        int seconds = (int) ((Integer.parseInt(duration) / 1000) % 60);
-        int minutes = (int) ((Integer.parseInt(duration) / 1000) / 60);
+        int seconds = ((Integer.parseInt(duration) / 1000) % 60);
+        int minutes = ((Integer.parseInt(duration) / 1000) / 60);
         if (seconds < 10) {
             finalDuration.setText(String.valueOf(minutes) + ":0" + String.valueOf(seconds));
         } else {

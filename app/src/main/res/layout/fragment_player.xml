@@ -35,13 +35,31 @@
             android:layout_marginTop="3dp"
             android:textSize="12dp" />
 
-        <ImageView
-            android:id="@+id/trackImage"
-            android:layout_width="375dp"
-            android:layout_height="375dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="5dp"
-            android:src="@drawable/ic_play" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/trackImage"
+                android:layout_width="375dp"
+                android:layout_height="375dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/ic_play" />
+
+            <ImageButton
+                android:id="@+id/youTubeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_youtube"
+                android:layout_marginStart="20dp"
+                android:layout_marginBottom="20dp"
+                android:layout_alignBottom="@+id/trackImage"
+                android:layout_alignStart="@+id/trackImage" />
+        </RelativeLayout>
+
 
         <TextView
             android:id="@+id/trackName"
@@ -127,5 +145,6 @@
         android:layout_height="65dp"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true" />
+
 
 </RelativeLayout>
