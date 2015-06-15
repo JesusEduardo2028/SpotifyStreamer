@@ -296,7 +296,6 @@ public class SearchArtistActivityFragment extends Fragment {
 
         @Override
         public void onBeginningOfSpeech() {
-            //Log.d(TAG, "onBeginingOfSpeech");
         }
 
         @Override
@@ -306,14 +305,11 @@ public class SearchArtistActivityFragment extends Fragment {
 
         @Override
         public void onEndOfSpeech() {
-            //Log.d(TAG, "onEndOfSpeech");
         }
 
         @Override
         public void onError(int error) {
             mSpeechRecognizer.startListening(mSpeechRecognizerIntent);
-
-            //Log.d(TAG, "error = " + error);
         }
 
         @Override
@@ -332,11 +328,8 @@ public class SearchArtistActivityFragment extends Fragment {
 
         @Override
         public void onResults(Bundle results) {
-            //Log.d(TAG, "onResults"); //$NON-NLS-1$
             spinner.setVisibility(View.GONE);
             ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-            // matches are the return values of speech recognition engine
-            // Use these values for whatever you wish to do
             searchArtistEditText.setText("");
             assert matches != null;
             searchArtistEditText.setText(matches.get(0));

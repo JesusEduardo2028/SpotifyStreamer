@@ -447,7 +447,7 @@ public class PlayerActivityFragment extends Fragment {
                                 premiumPlayer.getPlayerState(new PlayerStateCallback() {
                                     @Override
                                     public void onPlayerState(PlayerState playerState) {
-                                        int songPosition = playerState.positionInMs;
+                                        int progress = playerState.positionInMs;
 
                                         // resume lyrics
                                         Intent intent = new Intent();
@@ -463,7 +463,7 @@ public class PlayerActivityFragment extends Fragment {
                                         bundle.putLong("duration", Integer.parseInt(TopTenTracksActivityFragment.topTenTrackList.get(songPosition).trackDuration));
 
                                         // put the song's current position
-                                        bundle.putLong("position", songPosition);
+                                        bundle.putLong("position", progress);
 
                                         // put the playback status
                                         bundle.putBoolean("playing", true);
