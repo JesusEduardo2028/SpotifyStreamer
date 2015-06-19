@@ -37,6 +37,7 @@ public class TopTenTracksActivityFragment extends Fragment {
     public TopTenTracksActivityFragment() {
     }
 
+    /* ------------------life-cycle---------------------------------------*/
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
